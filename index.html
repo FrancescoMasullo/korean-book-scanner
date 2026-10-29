@@ -522,6 +522,49 @@
       color: var(--accent);
       margin-bottom: 6px;
     }
+
+    /* Sticker Spine Badge & Preview */
+    .spine-badge {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-family: 'Pretendard', sans-serif;
+      text-align: center;
+      line-height: 1.25;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      flex-shrink: 0;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s;
+    }
+    .spine-badge:active { transform: scale(0.96); }
+    .spine-badge .sp-pfx { font-size: 0.65rem; font-weight: 700; color: #0284c7; }
+    .spine-badge .sp-kdc { font-size: 0.84rem; font-weight: 800; color: #0f172a; letter-spacing: -0.2px; }
+    .spine-badge .sp-aut { font-size: 0.74rem; font-weight: 700; color: #047857; letter-spacing: 0.2px; }
+    .spine-badge .sp-yr  { font-size: 0.62rem; color: #64748b; font-weight: 600; }
+
+    /* Big Print Sticker Modal */
+    .print-sticker-box {
+      width: 150px;
+      background: #ffffff;
+      border: 2px solid #0f172a;
+      border-radius: 8px;
+      padding: 16px 10px;
+      margin: 16px auto;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .print-sticker-box .sp-pfx { font-size: 1.05rem; font-weight: 700; color: #0284c7; }
+    .print-sticker-box .sp-kdc { font-size: 1.45rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+    .print-sticker-box .sp-aut { font-size: 1.15rem; font-weight: 700; color: #047857; }
+    .print-sticker-box .sp-yr  { font-size: 0.95rem; font-weight: 600; color: #64748b; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -706,10 +749,43 @@
         <button class="icon-btn" onclick="closeModal()">✕</button>
       </div>
 
+      <!-- Live Sticker Preview in Modal -->
+      <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: space-around; margin-bottom: 12px;">
+        <div style="font-size: 0.8rem; color: var(--mute);">
+          <strong>Anteprima Etichetta Spina:</strong><br>
+          <span style="font-size:0.72rem; color:#64748b;">(청구기호 KDC 6ª Ed.)</span>
+        </div>
+        <div id="modalSpinePreview" class="spine-badge" style="padding: 8px 12px; transform: scale(1.1);">
+          <span class="sp-pfx" id="spPrevPfx">아동</span>
+          <span class="sp-kdc" id="spPrevKdc">813.8</span>
+          <span class="sp-aut" id="spPrevAut">김18ㄱ</span>
+          <span class="sp-yr" id="spPrevYr">2010</span>
+        </div>
+      </div>
+
       <label for="mIsbn">ISBN (13 cifre)</label>
       <div style="display:flex; gap:8px;">
         <input id="mIsbn" type="text" placeholder="97889...">
-        <button class="btn sm" id="btnModalLookupNlk" style="white-space:nowrap;">Cerca NLK</button>
+        <button class="btn sm" id="btnModalLookupNlk" style="white-space:nowrap;">Cerca Libro</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div>
+          <label for="mPrefix">Prefisso / Sezione (별치기호)</label>
+          <select id="mPrefix" style="width:100%; padding:10px; border-radius:9px; background:var(--card); color:var(--text); border:1px solid var(--card-border); margin-top:4px; font-family:inherit;">
+            <option value="">[Vuoto] Adulti / Generale</option>
+            <option value="아동">아동 (Bambini 7-12 anni)</option>
+            <option value="유아">유아 (Prima Infanzia 0-6)</option>
+            <option value="한국어학습">한국어학습 (Studio Lingua)</option>
+            <option value="청소년">청소년 (Young Adult)</option>
+            <option value="참고">참고 (Consultazione)</option>
+            <option value="시청각">시청각 (Multimediale)</option>
+          </select>
+        </div>
+        <div>
+          <label for="mAuthorCode">Codice Autore (저자기호)</label>
+          <input id="mAuthorCode" type="text" placeholder="Es. 김18ㄱ">
+        </div>
       </div>
 
       <label for="mTitle">Titolo (서명)</label>
@@ -734,11 +810,11 @@
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
         <div>
-          <label for="mKdc">KDC</label>
-          <input id="mKdc" type="text" placeholder="Es. 813.7">
+          <label for="mKdc">Codice KDC</label>
+          <input id="mKdc" type="text" placeholder="Es. 813.8">
         </div>
         <div>
-          <label for="mDdc">DDC</label>
+          <label for="mDdc">Codice DDC</label>
           <input id="mDdc" type="text" placeholder="Es. 895.7">
         </div>
       </div>
@@ -760,6 +836,32 @@
       <div style="display:flex; justify-content: flex-end; gap:8px; margin-top: 16px;">
         <button class="btn sec" onclick="closeModal()">Annulla</button>
         <button class="btn" id="btnModalSave">Salva Scheda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Print Label Preview -->
+  <div class="modal-wrap" id="labelModal">
+    <div class="modal-box" style="max-width: 380px; text-align: center;">
+      <div class="modal-header">
+        <div class="modal-title">Etichetta da Spina (청구기호)</div>
+        <button class="icon-btn" onclick="closeLabelModal()">✕</button>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--mute);">
+        Sticker adesivo per il dorso del libro.<br>Applicare a 2 cm dal bordo inferiore.
+      </p>
+
+      <div class="print-sticker-box" id="printStickerElement">
+        <div class="sp-pfx" id="prPfx">아동</div>
+        <div class="sp-kdc" id="prKdc">813.8</div>
+        <div class="sp-aut" id="prAut">김18ㄱ</div>
+        <div class="sp-yr" id="prYr">2010 v.1</div>
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 14px;">
+        <button class="btn sec" onclick="closeLabelModal()">Chiudi</button>
+        <button class="btn" id="btnPrintLabelNow">🖨️ Stampa Sticker</button>
       </div>
     </div>
   </div>
@@ -1299,6 +1401,126 @@
       } catch (e) {}
     }
 
+    // Motore di Calcolo Biblioteconomico Lee Jae-chul (이재철 저자기호표)
+    const KdcEngine = {
+      // Estrae la consonante iniziale (초성) di una sillaba Hangul
+      getChoseong(char) {
+        if (!char) return '';
+        const code = char.charCodeAt(0);
+        if (code >= 0xAC00 && code <= 0xD7A3) {
+          const choseongList = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+          return choseongList[Math.floor((code - 0xAC00) / 588)] || '';
+        }
+        return char;
+      },
+
+      // Mappa delle decine per i cognomi coreani (Tavola Lee Jae-chul)
+      getSurnameTens(surname) {
+        const map = {
+          '김': '10', '강': '11', '고': '13', '권': '14', '곽': '15', '구': '16',
+          '노': '20', '나': '21', '도': '25', '류': '28', '유': '28',
+          '박': '30', '배': '35', '백': '36', '변': '38',
+          '문': '40', '민': '45',
+          '손': '50', '송': '51', '신': '53', '서': '55', '심': '57',
+          '정': '60', '조': '63', '장': '65', '전': '67', '주': '69',
+          '최': '70', '천': '75', '차': '77',
+          '한': '80', '황': '83', '홍': '85', '허': '87',
+          '이': '90', '오': '92', '안': '93', '윤': '95', '양': '96', '임': '97'
+        };
+        if (map[surname]) return map[surname];
+        const initial = this.getChoseong(surname);
+        const initialMap = {
+          'ㄱ': '10', 'ㅋ': '10', 'ㄴ': '20', 'ㄷ': '25', 'ㄹ': '28',
+          'ㅂ': '30', 'ㅍ': '38', 'ㅁ': '40', 'ㅅ': '50', 'ㅆ': '50',
+          'ㅈ': '60', 'ㅉ': '60', 'ㅊ': '70', 'ㅎ': '80', 'ㅇ': '90'
+        };
+        return initialMap[initial] || '10';
+      },
+
+      // Mappa completa delle unità (include tutte le consonanti aspirate)
+      getUnitDigit(choseong) {
+        switch (choseong) {
+          case 'ㄱ': case 'ㄲ': case 'ㅋ': return '1';
+          case 'ㄴ': return '2';
+          case 'ㄷ': case 'ㄸ': case 'ㅌ': return '3';
+          case 'ㄹ': return '4';
+          case 'ㅁ': return '5';
+          case 'ㅂ': case 'ㅃ': case 'ㅍ': return '6';
+          case 'ㅅ': case 'ㅆ': return '7';
+          case 'ㅇ': case 'ㅎ': return '8';
+          case 'ㅈ': case 'ㅉ': case 'ㅊ': return '9';
+          default: return '1';
+        }
+      },
+
+      // Calcola il codice autore completo (es. 김18ㄱ)
+      computeAuthorCode(authorStr, titleStr) {
+        if (!authorStr) return '';
+        const cleanAuthor = authorStr.replace(/\(.*?\)/g, '').split(/[,;]/)[0].trim();
+        if (!cleanAuthor) return '';
+
+        const firstCode = cleanAuthor.charCodeAt(0);
+        if (firstCode >= 0xAC00 && firstCode <= 0xD7A3) {
+          const surname = cleanAuthor.charAt(0);
+          const tensStr = this.getSurnameTens(surname);
+          const tensDigit = tensStr.charAt(0); // Decina
+
+          let unitDigit = '1';
+          if (cleanAuthor.length >= 2) {
+            const givenFirstChar = cleanAuthor.charAt(1);
+            const givenChoseong = this.getChoseong(givenFirstChar);
+            unitDigit = this.getUnitDigit(givenChoseong);
+          }
+
+          let titleInitial = '';
+          if (titleStr) {
+            const cleanTitle = titleStr.replace(/^[《〈\[(‘'"\s]+/, '');
+            if (cleanTitle) {
+              titleInitial = this.getChoseong(cleanTitle.charAt(0));
+            }
+          }
+
+          return `${surname}${tensDigit}${unitDigit}${titleInitial}`;
+        }
+
+        const initial = cleanAuthor.charAt(0).toUpperCase();
+        return `${initial}10`;
+      },
+
+      // Genera l'etichetta completa (4 righe)
+      generateSpineLabel(book) {
+        let prefix = book.prefix || '';
+        if (!prefix) {
+          const kdc = String(book.kdc || '');
+          const text = `${book.title || ''} ${book.subject || ''}`;
+          if (kdc.startsWith('813.8') || /아동|어린이|동화|그림책/.test(text)) {
+            prefix = '아동';
+          } else if (kdc.startsWith('710') || kdc.startsWith('711') || /한국어|TOPIK|문법/.test(text)) {
+            prefix = '한국어학습';
+          }
+        }
+
+        const kdcCode = book.kdc ? String(book.kdc).trim() : '---';
+        const authorCode = book.author_code || this.computeAuthorCode(book.author, book.title) || '---';
+
+        let year = '';
+        if (book.date) {
+          const m = String(book.date).match(/\b(19\d\d|20\d\d)\b/);
+          if (m) year = m[1];
+        }
+        let vol = book.vol ? ` v.${book.vol.replace(/[^\d.]/g, '')}` : '';
+        const yearVol = `${year}${vol}`.trim();
+
+        return {
+          prefix: prefix,
+          kdc: kdcCode,
+          authorCode: authorCode,
+          yearVol: yearVol,
+          fullCallNumber: [prefix, kdcCode, authorCode, yearVol].filter(Boolean).join('\n')
+        };
+      }
+    };
+
     // Rendering UI
     function renderCard(b, allowDelete = false) {
       const isPending = App.outbox.includes(b.isbn);
@@ -1307,16 +1529,21 @@
         : `<span class="badge synced">✓ Sincronizzato</span>`;
 
       let statusBadge = '';
-      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Non trovato NLK</span>`;
-      else if (b.status === 'error') statusBadge = `<span class="badge error">Errore NLK</span>`;
+      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Non trovato</span>`;
+      else if (b.status === 'error') statusBadge = `<span class="badge error">Errore</span>`;
 
       const kdcBadge = b.kdc ? `<span class="badge kdc">KDC ${esc(b.kdc)}</span>` : '';
-      const ddcBadge = b.ddc ? `<span class="badge">DDC ${esc(b.ddc)}</span>` : '';
       const yearBadge = b.date ? `<span class="badge">${esc(b.date)}</span>` : '';
 
       const coverHtml = b.cover
         ? `<img class="book-thumb" src="${esc(b.cover)}" alt="Cover" onerror="this.outerHTML='<div class=\\'book-thumb\\'>📖</div>'"/>`
         : `<div class="book-thumb">📖</div>`;
+
+      // Calcola etichetta spina
+      const spine = KdcEngine.generateSpineLabel(b);
+      // Salva nella memoria del libro
+      b.call_number = spine.fullCallNumber;
+      b.author_code = spine.authorCode;
 
       return `
         <div class="book-card" id="card-${esc(b.isbn)}">
@@ -1328,15 +1555,22 @@
               <span class="badge">ISBN ${esc(b.isbn)}</span>
               ${yearBadge}
               ${kdcBadge}
-              ${ddcBadge}
               ${syncBadge}
               ${statusBadge}
             </div>
             ${b.notes ? `<div style="font-size:0.75rem; color:#a5b4fc; margin-top:3px;">📝 ${esc(b.notes)}</div>` : ''}
           </div>
-          <div class="book-actions">
-            <button class="icon-btn" style="width:30px; height:30px; font-size:0.8rem;" onclick="openEditModal('${esc(b.isbn)}')">✏️</button>
-            ${allowDelete ? `<button class="icon-btn" style="width:30px; height:30px; font-size:0.8rem; color:#f87171;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div class="spine-badge" title="Tocca per ingrandire o stampare etichetta" onclick="openLabelModal('${esc(b.isbn)}')">
+              ${spine.prefix ? `<span class="sp-pfx">${esc(spine.prefix)}</span>` : ''}
+              <span class="sp-kdc">${esc(spine.kdc)}</span>
+              <span class="sp-aut">${esc(spine.authorCode)}</span>
+              ${spine.yearVol ? `<span class="sp-yr">${esc(spine.yearVol)}</span>` : ''}
+            </div>
+            <div class="book-actions" style="flex-direction:row;">
+              <button class="icon-btn" style="width:28px; height:28px; font-size:0.75rem;" onclick="openEditModal('${esc(b.isbn)}')">✏️</button>
+              ${allowDelete ? `<button class="icon-btn" style="width:28px; height:28px; font-size:0.75rem; color:#f87171;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -1377,6 +1611,8 @@
         title.textContent = "Modifica Libro";
         inputIsbn.value = b.isbn;
         inputIsbn.disabled = true;
+        document.getElementById('mPrefix').value = b.prefix || '';
+        document.getElementById('mAuthorCode').value = b.author_code || '';
         document.getElementById('mTitle').value = b.title || '';
         document.getElementById('mVol').value = b.vol || '';
         document.getElementById('mSeries').value = b.series || '';
@@ -1391,6 +1627,8 @@
         title.textContent = "Aggiungi Libro";
         inputIsbn.value = '';
         inputIsbn.disabled = false;
+        document.getElementById('mPrefix').value = '';
+        document.getElementById('mAuthorCode').value = '';
         document.getElementById('mTitle').value = '';
         document.getElementById('mVol').value = '';
         document.getElementById('mSeries').value = '';
@@ -1402,8 +1640,64 @@
         document.getElementById('mPages').value = '';
         document.getElementById('mNotes').value = '';
       }
+      updateModalSpinePreview();
       modal.classList.add('open');
     }
+
+    function updateModalSpinePreview() {
+      const tempBook = {
+        prefix: document.getElementById('mPrefix').value,
+        kdc: document.getElementById('mKdc').value,
+        author: document.getElementById('mAuthor').value,
+        title: document.getElementById('mTitle').value,
+        author_code: document.getElementById('mAuthorCode').value,
+        date: document.getElementById('mDate').value,
+        vol: document.getElementById('mVol').value
+      };
+      const spine = KdcEngine.generateSpineLabel(tempBook);
+      document.getElementById('spPrevPfx').textContent = spine.prefix || '';
+      document.getElementById('spPrevPfx').style.display = spine.prefix ? 'block' : 'none';
+      document.getElementById('spPrevKdc').textContent = spine.kdc;
+      document.getElementById('spPrevAut').textContent = spine.authorCode;
+      document.getElementById('spPrevYr').textContent = spine.yearVol || '';
+      document.getElementById('spPrevYr').style.display = spine.yearVol ? 'block' : 'none';
+
+      // Se il campo authorCode nel form è vuoto, lo pre-popola automaticamente
+      const codeInput = document.getElementById('mAuthorCode');
+      if (!codeInput.value && spine.authorCode && spine.authorCode !== '---') {
+        codeInput.value = spine.authorCode;
+      }
+    }
+
+    // Modal Ingrandimento e Stampa Etichetta
+    let printingIsbn = null;
+    function openLabelModal(isbn) {
+      printingIsbn = isbn;
+      const b = App.books[isbn];
+      if (!b) return;
+      const spine = KdcEngine.generateSpineLabel(b);
+
+      const pfxEl = document.getElementById('prPfx');
+      pfxEl.textContent = spine.prefix || '';
+      pfxEl.style.display = spine.prefix ? 'block' : 'none';
+
+      document.getElementById('prKdc').textContent = spine.kdc;
+      document.getElementById('prAut').textContent = spine.authorCode;
+
+      const yrEl = document.getElementById('prYr');
+      yrEl.textContent = spine.yearVol || '';
+      yrEl.style.display = spine.yearVol ? 'block' : 'none';
+
+      document.getElementById('labelModal').classList.add('open');
+    }
+
+    function closeLabelModal() {
+      document.getElementById('labelModal').classList.remove('open');
+      printingIsbn = null;
+    }
+
+    window.openLabelModal = openLabelModal;
+    window.closeLabelModal = closeLabelModal;
 
     function closeModal() {
       document.getElementById('editModal').classList.remove('open');
@@ -1424,7 +1718,7 @@
     };
 
     // Esportazione CSV UTF-8 con BOM per Excel
-    const COLS_CSV = ["isbn","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","notes","who","status"];
+    const COLS_CSV = ["isbn","call_number","author_code","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","notes","who","status"];
     function exportCsv() {
       const all = Object.values(App.books);
       if (all.length === 0) return toast("Nessun libro da esportare.");
@@ -1529,6 +1823,8 @@
           status: 'ok'
         };
 
+        book.prefix = document.getElementById('mPrefix').value;
+        book.author_code = document.getElementById('mAuthorCode').value.trim() || KdcEngine.computeAuthorCode(book.author, book.title);
         book.title = document.getElementById('mTitle').value.trim() || `ISBN ${isbn}`;
         book.vol = document.getElementById('mVol').value.trim();
         book.series = document.getElementById('mSeries').value.trim();
@@ -1539,6 +1835,9 @@
         book.date = document.getElementById('mDate').value.trim();
         book.pages = document.getElementById('mPages').value.trim();
         book.notes = document.getElementById('mNotes').value.trim();
+
+        const spine = KdcEngine.generateSpineLabel(book);
+        book.call_number = spine.fullCallNumber;
 
         App.books[isbn] = book;
         enqueueSync(isbn);
@@ -1564,10 +1863,62 @@
           document.getElementById('mDdc').value = doc.ddc || '';
           document.getElementById('mDate').value = doc.date || '';
           document.getElementById('mPages').value = doc.pages || '';
+          updateModalSpinePreview();
           toast("Dati trovati e inseriti!");
         } else {
           toast("Nessun dato trovato per questo ISBN.");
         }
+      };
+
+      // Aggiorna l'anteprima sticker in tempo reale quando si modificano i campi
+      ['mPrefix', 'mAuthorCode', 'mTitle', 'mAuthor', 'mKdc', 'mDate', 'mVol'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updateModalSpinePreview);
+          el.addEventListener('change', updateModalSpinePreview);
+        }
+      });
+
+      // Stampa Sticker Singolo
+      document.getElementById('btnPrintLabelNow').onclick = () => {
+        const printContent = document.getElementById('printStickerElement').outerHTML;
+        const printWindow = window.open('', '_blank', 'width=350,height=400');
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Stampa Etichetta Spina</title>
+            <style>
+              @page { size: auto; margin: 5mm; }
+              body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+              .print-sticker-box {
+                width: 32mm;
+                height: 40mm;
+                border: 1px solid #000;
+                border-radius: 3mm;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                box-sizing: border-box;
+                padding: 2mm;
+              }
+              .sp-pfx { font-size: 10pt; font-weight: bold; }
+              .sp-kdc { font-size: 13pt; font-weight: 900; margin: 1mm 0; }
+              .sp-aut { font-size: 11pt; font-weight: bold; }
+              .sp-yr  { font-size: 9pt; color: #333; }
+            </style>
+          </head>
+          <body>
+            ${printContent}
+            <script>
+              window.onload = function() { window.print(); window.close(); };
+            <\/script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
       };
 
       // Backup JSON

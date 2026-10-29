@@ -23,6 +23,8 @@ const TOKEN = 'CAMBIA-QUESTO-TOKEN';
 // COLONNE DEL FOGLIO CATALOGO
 const COLS = [
   'isbn',
+  'call_number',
+  'author_code',
   'title',
   'vol',
   'series',
@@ -46,6 +48,8 @@ const COLS = [
 // INTESTAZIONI LEGGIBILI PER LA PRIMA RIGA
 const HEADER_LABELS = [
   'ISBN',
+  'Segnatura / Spina (청구기호)',
+  'Codice Autore (저자기호)',
   'Titolo (서명)',
   'Volume (권)',
   'Serie (총서명)',

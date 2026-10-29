@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Manuale di Catalogazione KDC - Biblioteca Coreana di Torino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      font-size: 10.5pt;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+      padding-top: 10px;
+    }
+    h1 {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #0f365f;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 11pt;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #0284c7;
+    }
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f365f;
+      margin: 18px 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 12px 0 6px 0;
+    }
+    p {
+      margin: 0 0 8px 0;
+      text-align: justify;
+    }
+    ul {
+      margin: 4px 0 10px 20px;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .highlight-box {
+      background: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 10px 14px;
+      margin: 12px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    /* Sticker Spine Preview */
+    .sticker-container {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 22px 0;
+    }
+    .spine-sticker {
+      width: 140px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 8px;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      text-align: center;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .spine-row {
+      line-height: 1.35;
+      padding: 2px 0;
+    }
+    .spine-prefix {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #0284c7;
+    }
+    .spine-kdc {
+      font-size: 13pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .spine-author {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #047857;
+      letter-spacing: 0.5px;
+    }
+    .spine-year {
+      font-size: 9.5pt;
+      color: #64748b;
+      font-weight: 600;
+    }
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px 0;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #0f365f;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: center;
+    }
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    .hangul-tag {
+      font-weight: 700;
+      color: #0369a1;
+      font-size: 10pt;
+    }
+    .code-pill {
+      font-family: monospace;
+      font-weight: 700;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .footer-note {
+      font-size: 8pt;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGINA 1 -->
+  <h1>MANUALE DI CATALOGAZIONE KDC</h1>
+  <div class="subtitle">Guida Operativa Ufficiale | Biblioteca Coreana di Torino (Edizione Aggiornata 2026)</div>
+
+  <h2>1. Cos'è la KDC e perché la adottiamo?</h2>
+  <p><strong>Cos'è la KDC (Korean Decimal Classification)?</strong><br>
+  La <strong>KDC</strong> (한국십진분류법 - <em>Classificazione Decimale Coreana</em>) è lo standard nazionale adottato in Corea del Sud dal 1964 per organizzare la conoscenza in tutte le biblioteche pubbliche, universitarie e scolastiche del Paese. Si basa su un sistema decimale a 10 macro-classi numeriche (da <code>000</code> a <code>900</code>).</p>
+
+  <p><strong>Perché usiamo questo sistema a Torino?</strong></p>
+  <ul>
+    <li><strong>Autenticità dell'esperienza:</strong> Vogliamo che la nostra biblioteca offra un'esperienza autentica, permettendo ai lettori di ritrovare la stessa identica organizzazione e la stessa segnatura a scaffale che troverebbero in una biblioteca a Seul o Busan.</li>
+    <li><strong>Standardizzazione e Coerenza:</strong> Adottare uno standard ufficiale internazionale evita ambiguità e consente a tutti i volontari di catalogare ogni volume seguendo regole chiare, stabili e uniformi.</li>
+    <li><strong>Ponte Culturale:</strong> Facilita i lettori madrelingua coreani nella ricerca a scaffale e offre a studenti e appassionati italiani l'opportunità di familiarizzare con la biblioteconomia coreana.</li>
+  </ul>
+
+  <h2>2. Struttura dell'Etichetta da Spina (청구기호)</h2>
+  <p>Ogni libro possiede un'etichetta adesiva (sticker) applicata sulla spina/dorso del libro a circa <strong>2 cm dal bordo inferiore</strong>, strutturata su 3 o 4 righe verticali:</p>
+
+  <div class="sticker-container">
+    <div class="spine-sticker">
+      <div class="spine-row spine-prefix">아동</div>
+      <div class="spine-row spine-kdc">813.8</div>
+      <div class="spine-row spine-author">김18ㄱ</div>
+      <div class="spine-row spine-year">2010 v.1</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 14%;">Riga</th>
+        <th style="width: 22%;">Contenuto</th>
+        <th style="width: 44%;">Descrizione</th>
+        <th style="width: 20%;">Esempio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center;"><strong>1ª RIGA</strong></td>
+        <td><strong>Prefisso / Sezione</strong><br>(별치기호)</td>
+        <td>Indica la collocazione fisica in sala (es. <code>아동</code>, <code>한국어학습</code> o vuoto per adulti).</td>
+        <td style="text-align:center;"><span class="hangul-tag">아동</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>2ª RIGA</strong></td>
+        <td><strong>Codice KDC</strong><br>(분류기호)</td>
+        <td>Classificazione numerica decimale per argomento (da 000 a 900).</td>
+        <td style="text-align:center;"><span class="code-pill">813.8</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>3ª RIGA</strong></td>
+        <td><strong>Codice Autore/Titolo</strong><br>(저자기호)</td>
+        <td>Codice alfanumerico univoco ricavato con le tavole <em>Lee Jae-chul</em>.</td>
+        <td style="text-align:center;"><span class="hangul-tag">김18ㄱ</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>4ª RIGA</strong><br><em>(opzionale)</em></td>
+        <td><strong>Anno / Volume</strong><br>(연도·권호)</td>
+        <td>Anno di edizione o numero del volume se opera in più tomi.</td>
+        <td style="text-align:center;"><span class="code-pill">2010 v.1</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PAGINA 2 -->
+  <div class="page-break"></div>
+  <h2>3. Guida alla Prima Riga: Prefissi di Sezione (별치기호)</h2>
+  <p>La prima riga indica la sezione fisica o il pubblico di destinazione del libro. Si assegna secondo la seguente tabella ufficiale:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 18%;">Prefisso Hangul</th>
+        <th style="width: 22%;">Sezione / Target</th>
+        <th style="width: 60%;">Quando Utilizzarlo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center;"><em>[Nessun prefisso]</em><br><small>(o 일반)</small></td>
+        <td><strong>Adulti / Generale</strong></td>
+        <td>Tutti i libri per adulti (romanzi, saggistica, poesia, storia, arte, scienze). La prima riga si lascia in bianco.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">아동</span></td>
+        <td><strong>Bambini (7-12 anni)</strong></td>
+        <td>Romanzi per ragazzi, fiabe, enciclopedie infantili, libri per la scuola primaria e secondaria di primo grado.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">유아</span></td>
+        <td><strong>Prima Infanzia (0-6 anni)</strong></td>
+        <td>Albi illustrati (<em>picture books</em>), cartonati, libri tattili e prime letture per l'età prescolare.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">한국어학습</span></td>
+        <td><strong>Studio Lingua Coreana</strong></td>
+        <td>Manuali didattici, libri di grammatica, preparazione all'esame TOPIK, vocabolari e corsi per stranieri.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">청소년</span></td>
+        <td><strong>Young Adult (13-18 anni)</strong></td>
+        <td>Narrativa e saggistica specificamente indirizzata ad adolescenti e giovani adulti.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">참고</span></td>
+        <td><strong>Consultazione in Sede</strong></td>
+        <td>Dizionari voluminosi, enciclopedie e volumi rari esclusi dal prestito a domicilio.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><span class="hangul-tag">시청각</span></td>
+        <td><strong>Materiale Multimediale</strong></td>
+        <td>DVD, CD audio, audiolibri e materiali multimediali.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>4. Le 10 Classi Principali della KDC (2ª Riga)</h2>
+  <p>La KDC 6ª Edizione suddivide il sapere in 10 classi da 100 divisioni ciascuna:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 12%;">Codice</th>
+        <th style="width: 28%;">Classe Principale</th>
+        <th style="width: 60%;">Divisioni Principali (KDC 6ª Edizione)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center;"><strong>000</strong></td>
+        <td><strong>Opere generali</strong><br>(총류)</td>
+        <td>000 Generale · 010 Bibliografia · 020 Biblioteconomia · 030 Enciclopedie · 040 Saggi generali · 050 Periodici · 060 Associazioni · 070 Giornalismo · 080 Raccolte · 090 Materiali regionali</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>100</strong></td>
+        <td><strong>Filosofia</strong><br>(철학)</td>
+        <td>100 Generale · 110 Metafisica · 120 Epistemologia · 130 Sistemi filosofici · 140 Classici cinesi (경학) · 150 Pensiero orientale · 160 Filosofia occidentale · 170 Logica · 180 Psicologia · 190 Etica</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>200</strong></td>
+        <td><strong>Religione</strong><br>(종교)</td>
+        <td>200 Generale · 210 Religioni comparate · 220 Buddhismo · 230 Cristianesimo · 240 Taoismo · 250 Cheondoilismo (천도교) · 260 [Non assegnato] · 270 Induismo · 280 Islam · 290 Altre religioni</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>300</strong></td>
+        <td><strong>Scienze sociali</strong><br>(사회과학)</td>
+        <td>300 Generale · 310 Statistica · 320 Economia · 330 Sociologia · 340 Scienze politiche · 350 Pubblica amministrazione · 360 Diritto · 370 Educazione · 380 Folklore e costumi · 390 Scienze militari</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>400</strong></td>
+        <td><strong>Scienze naturali</strong><br>(자연과학)</td>
+        <td>400 Generale · 410 Matematica · 420 Fisica · 430 Chimica · 440 Astronomia · 450 Scienze della Terra · 460 Mineralogia · 470 Biologia · 480 Botanica · 490 Zoologia</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>500</strong></td>
+        <td><strong>Scienze applicate</strong><br>(기술과학)</td>
+        <td>500 Generale · 510 Medicina · 520 Agricoltura · 530 Ingegneria · 540 Architettura ed edilizia · 550 Meccanica · 560 Elettronica e telecomunicazioni · 570 Chimica applicata · 580 Manifattura · 590 Scienze della casa</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>600</strong></td>
+        <td><strong>Arti</strong><br>(예술)</td>
+        <td>600 Generale · 610 [Non assegnato] · 620 Scultura · 630 Artigianato e design · 640 Calligrafia (서예) · 650 Pittura e disegno · 660 Fotografia · 670 Musica · 680 Spettacolo e teatro · 690 Sport e giochi</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>700</strong></td>
+        <td><strong>Linguistica</strong><br>(언어)</td>
+        <td>700 Generale · <strong>710 Lingua coreana</strong> · 720 Cinese · 730 Giapponese e altre asiatiche · 740 Inglese · 750 Tedesco · 760 Francese · 770 Spagnolo/Portoghese · 780 Italiano · 790 Altre lingue</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>800</strong></td>
+        <td><strong>Letteratura</strong><br>(문학)</td>
+        <td>800 Generale · <strong>810 Letteratura coreana (813 Romanzo, 813.8 Ragazzi, 814 Saggio)</strong> · 820 Cinese · 830 Giapponese · 840 Inglese/Americana · 850 Tedesca · 860 Francese · 870 Spagnola · 880 Italiana · 890 Altre</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>900</strong></td>
+        <td><strong>Storia e Geografia</strong><br>(역사)</td>
+        <td>900 Generale · <strong>910 Storia dell'Asia (911 Storia della Corea)</strong> · 920 Europa · 930 Africa · 940 Nord America · 950 Sud America · 960 Oceania · 970 [Non assegnato] · 980 Geografia · 990 Biografie</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PAGINA 3 -->
+  <div class="page-break"></div>
+  <h2>5. Come Calcolare il Codice Autore e Titolo (3ª Riga - 저자기호)</h2>
+  <p>Il codice autore ordina alfabeticamente i libri all'interno dello stesso numero KDC, secondo il sistema ufficiale delle tavole di <strong>Lee Jae-chul (이재철 저자기호표)</strong>.</p>
+
+  <div class="highlight-box">
+    <strong>FORMULA UFFICIALE CODICE AUTORE:</strong><br>
+    <span style="font-size: 11.5pt; color: #0f365f; font-weight: 800;">[Iniziale Cognome] + [Numero d'Autore (Decina + Unità)] + [Prima Consonante del Titolo]</span>
+  </div>
+
+  <h3>Passo 1: L'Iniziale del Cognome in Hangul</h3>
+  <p>Si riporta integralmente la sillaba del cognome dell'autore in Hangul (es. <code>김</code> per Kim, <code>이</code> per Lee/Yi, <code>박</code> per Park, <code>최</code> per Choi, <code>강</code> per Kang, <code>한</code> per Han).</p>
+
+  <h3>Passo 2: Calcolare il Numero d'Autore (2 Cifre: Decina + Unità)</h3>
+  <p><strong>1. La prima cifra (DECINA):</strong> determinata dalla serie alfabetica del cognome:</p>
+  <table style="margin-bottom: 8px;">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Iniziale Cognome</th>
+        <th style="width: 50%;">Esempi di Cognomi Coreani Comuni</th>
+        <th style="width: 30%;">Serie Decina</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center;"><strong>ㄱ, ㅋ</strong></td>
+        <td><strong>김 (Kim)</strong>, <strong>강 (Kang)</strong>, 고 (Ko), 권 (Kwon), 곽 (Kwak), 구 (Koo)</td>
+        <td style="text-align:center;"><span class="code-pill">10 ~ 19</span> (김=10, 강=11, etc.)</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㄴ, ㄷ, ㄹ</strong></td>
+        <td>노 (Noh), 나 (Na), 도 (Do), 류/유 (Ryu)</td>
+        <td style="text-align:center;"><span class="code-pill">20 ~ 29</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅂ, ㅍ</strong></td>
+        <td><strong>박 (Park)</strong>, 배 (Bae), 백 (Baek), 변 (Byun)</td>
+        <td style="text-align:center;"><span class="code-pill">30 ~ 39</span> (박=30)</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅁ</strong></td>
+        <td>문 (Moon), 민 (Min)</td>
+        <td style="text-align:center;"><span class="code-pill">40 ~ 49</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅅ</strong></td>
+        <td>손 (Son), 송 (Song), <strong>신 (Shin)</strong>, 서 (Seo), 심 (Shim)</td>
+        <td style="text-align:center;"><span class="code-pill">50 ~ 59</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅈ</strong></td>
+        <td><strong>정 (Jung/Jeong)</strong>, <strong>조 (Cho/Jo)</strong>, <strong>장 (Jang)</strong>, 전 (Jeon)</td>
+        <td style="text-align:center;"><span class="code-pill">60 ~ 69</span> (정=60)</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅊ</strong></td>
+        <td><strong>최 (Choi)</strong>, 천 (Cheon), 차 (Cha)</td>
+        <td style="text-align:center;"><span class="code-pill">70 ~ 79</span> (최=70)</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅎ</strong></td>
+        <td><strong>한 (Han)</strong>, <strong>황 (Hwang)</strong>, 홍 (Hong), 허 (Heo)</td>
+        <td style="text-align:center;"><span class="code-pill">80 ~ 89</span></td>
+      </tr>
+      <tr>
+        <td style="text-align:center;"><strong>ㅇ</strong></td>
+        <td><strong>이 (Lee/Yi)</strong>, <strong>오 (Oh)</strong>, <strong>안 (Ahn)</strong>, <strong>윤 (Yoon)</strong>, 양 (Yang)</td>
+        <td style="text-align:center;"><span class="code-pill">90 ~ 99</span> (이=90, 안=92, etc.)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>2. La seconda cifra (UNITÀ - Tabella Completa delle Consonanti del Nome):</strong><br>
+  Si individua la consonante iniziale della prima sillaba del nome proprio dell'autore:</p>
+
+  <table style="margin-bottom: 8px;">
+    <thead>
+      <tr>
+        <th style="width: 60%;">Consonante Iniziale del Nome Proprio (초성)</th>
+        <th style="width: 40%;">Cifra Unità</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align:center;"><strong>ㄱ, ㅋ</strong></td><td style="text-align:center;"><strong>1</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㄴ</strong></td><td style="text-align:center;"><strong>2</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㄷ, ㄸ, ㅌ</strong></td><td style="text-align:center;"><strong>3</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㄹ</strong></td><td style="text-align:center;"><strong>4</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㅁ</strong></td><td style="text-align:center;"><strong>5</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㅂ, ㅃ, ㅍ</strong></td><td style="text-align:center;"><strong>6</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㅅ, ㅆ</strong></td><td style="text-align:center;"><strong>7</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㅇ, ㅎ</strong></td><td style="text-align:center;"><strong>8</strong></td></tr>
+      <tr><td style="text-align:center;"><strong>ㅈ, ㅉ, ㅊ</strong></td><td style="text-align:center;"><strong>9</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Passo 3: La Consonante del Titolo</h3>
+  <p>Si aggiunge al termine la prima consonante (초성) della prima sillaba del titolo del libro:<br>
+  • Per 《<strong>강</strong>치야, 독도 강치야》 → <strong>ㄱ</strong><br>
+  • Per 《<strong>번</strong>지다》 → <strong>ㅂ</strong><br>
+  • Per 《<strong>소</strong>릿고》 → <strong>ㅅ</strong></p>
+
+  <!-- PAGINA 4 -->
+  <div class="page-break"></div>
+  <h2>6. Esempi Pratici Guidati</h2>
+
+  <div class="highlight-box">
+    <strong>Esempio 1: Autore 김일광 (Kim Il-kwang) – Titolo 《강치야, 독도 강치야》</strong>
+    <ul>
+      <li><strong>Cognome:</strong> 김 → Serie base decina <code>김10</code></li>
+      <li><strong>Nome proprio:</strong> 일광 → prima sillaba <em>일</em> → consonante iniziale <em>ㅇ</em> → Cifra Unità <code>8</code></li>
+      <li><strong>Codice Autore:</strong> <code>김18</code></li>
+      <li><strong>Consonante Titolo:</strong> 《<strong>강</strong>치야...》 (sillaba <em>강</em>, consonante <em>ㄱ</em>) → <code>ㄱ</code></li>
+      <li><strong>Risultato 3ª riga:</strong> <span class="hangul-tag">김18ㄱ</span></li>
+      <li><strong>Etichetta Completa:</strong><br>
+        1ª riga: <code>아동</code><br>
+        2ª riga: <code>813.8</code> (Narrativa ragazzi KDC)<br>
+        3ª riga: <code>김18ㄱ</code><br>
+        4ª riga: <code>2010</code>
+      </li>
+    </ul>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Esempio 2: Autrice 한강 (Han Kang) – Titolo 《소년이 온다》</strong>
+    <ul>
+      <li><strong>Cognome:</strong> 한 → Serie base decina <code>한80</code></li>
+      <li><strong>Nome proprio:</strong> 강 → prima sillaba <em>강</em> → consonante iniziale <em>ㄱ</em> → Cifra Unità <code>1</code></li>
+      <li><strong>Codice Autore:</strong> <code>한81</code></li>
+      <li><strong>Consonante Titolo:</strong> 《<strong>소</strong>년이 온다》 (sillaba <em>소</em>, consonante <em>ㅅ</em>) → <code>ㅅ</code></li>
+      <li><strong>Risultato 3ª riga:</strong> <span class="hangul-tag">한81ㅅ</span></li>
+      <li><strong>Etichetta Completa:</strong> 1ª riga: <em>[vuota per adulti]</em> · 2ª riga: <code>813.7</code> · 3ª riga: <code>한81ㅅ</code> · 4ª riga: <code>2014</code></li>
+    </ul>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Esempio 3: Autore 이용익 (Lee Yong-ik) – Titolo 《번지다》</strong>
+    <ul>
+      <li><strong>Cognome:</strong> 이 → Serie base decina <code>이90</code></li>
+      <li><strong>Nome proprio:</strong> 용익 → prima sillaba <em>용</em> → consonante iniziale <em>ㅇ</em> → Cifra Unità <code>8</code></li>
+      <li><strong>Codice Autore:</strong> <code>이98</code></li>
+      <li><strong>Consonante Titolo:</strong> 《<strong>번</strong>지다》 (sillaba <em>번</em>, consonante <em>ㅂ</em>) → <code>ㅂ</code></li>
+      <li><strong>Risultato 3ª riga:</strong> <span class="hangul-tag">이98ㅂ</span></li>
+      <li><strong>Etichetta Completa:</strong> 2ª riga: <code>814.7</code> · 3ª riga: <code>이98ㅂ</code></li>
+    </ul>
+  </div>
+
+  <h2>7. Procedura Operativa per i Volontari</h2>
+  <ol style="margin-left: 20px; padding: 0;">
+    <li style="margin-bottom: 6px;"><strong>Scansiona l'ISBN:</strong> Usa l'applicazione Web sul cellulare per registrare il libro. L'app ricava automaticamente i metadati e genera l'anteprima dell'etichetta.</li>
+    <li style="margin-bottom: 6px;"><strong>Verifica la 1ª riga (Prefisso):</strong> Assegna <code>아동</code> per ragazzi, <code>유아</code> per prima infanzia, <code>한국어학습</code> per manuali di lingua o lascia vuoto per adulti.</li>
+    <li style="margin-bottom: 6px;"><strong>Verifica o inserisci il KDC:</strong> Seleziona la classe appropriata dalla tabella a 10 classi (es. <code>813.8</code> per fiabe coreane).</li>
+    <li style="margin-bottom: 6px;"><strong>Verifica il Codice Autore/Titolo:</strong> Calcola [Cognome] + [Cifra] + [Lettera Titolo] o controlla l'anteprima generata automaticamente dall'app.</li>
+    <li style="margin-bottom: 6px;"><strong>Applica l'Etichetta e Timbro:</strong> Incolla lo sticker adesivo sulla spina del libro a <strong>2 cm dal bordo inferiore</strong> e apponi il timbro della biblioteca sul taglio delle pagine.</li>
+  </ol>
+
+  <div class="footer-note">
+    Manuale Ufficiale di Catalogazione KDC | Biblioteca Coreana di Torino | Aggiornato ad Ottobre 2026
+  </div>
+
+</body>
+</html>
