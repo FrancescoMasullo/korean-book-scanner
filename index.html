@@ -5,8 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BookScanner">
+  <meta name="application-name" content="BookScanner">
+
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <title>Korean Book Scanner - Catalogo NLK</title>
 
   <!-- Typography & Scanner Engine -->
@@ -589,6 +597,22 @@
 
     <!-- TAB 3: IMPOSTAZIONI -->
     <section id="tab-set">
+      <div class="settings-card" id="cardInstallPwa">
+        <div class="settings-title">📱 Installa App su Telefono</div>
+        <p style="font-size: 0.82rem; color: var(--mute); margin-bottom: 10px;">
+          Installando l'applicazione potrai usarla a schermo intero come una vera app, con accesso immediato dalla schermata principale del telefono e avvio anche offline.
+        </p>
+        <button class="btn sm" id="btnPwaInstall" style="display:none; width: 100%; justify-content: center;">
+          📲 Installa Applicazione su Android
+        </button>
+        <div id="pwaIosGuide" style="display:none; font-size: 0.82rem; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);">
+          <strong>Su iPhone / iPad:</strong> tocca il tasto Condividi (icona <span style="font-size:1rem;">⎋</span> o quadrato con freccia verso l'alto) in basso su Safari, quindi seleziona <strong>"Aggiungi alla schermata Home"</strong>.
+        </div>
+        <div id="pwaInstalledNotice" style="display:none; font-size: 0.82rem; color: var(--ok);">
+          ✓ Applicazione già installata sulla schermata Home!
+        </div>
+      </div>
+
       <div class="settings-card">
         <div class="settings-title">🔑 National Library of Korea (NLK) API</div>
         <label for="cfgKey">Chiave API NLK (cert_key)</label>
@@ -1483,7 +1507,60 @@
       // Gestione offline/online
       window.addEventListener('online', flushSync);
       document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
+
+      // Service Worker & PWA Install Prompt
+      setupPwaInstallation();
     });
+
+    // PWA Installation Manager
+    let deferredPrompt = null;
+    function setupPwaInstallation() {
+      // Registra Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registrato:', reg.scope))
+            .catch(err => console.warn('Registrazione Service Worker fallita:', err));
+        });
+      }
+
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const btnInstall = document.getElementById('btnPwaInstall');
+      const iosGuide = document.getElementById('pwaIosGuide');
+      const installedNotice = document.getElementById('pwaInstalledNotice');
+
+      if (isStandalone) {
+        if (installedNotice) installedNotice.style.display = 'block';
+        return;
+      }
+
+      // Chrome / Edge / Android Event
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (btnInstall) {
+          btnInstall.style.display = 'inline-flex';
+          btnInstall.onclick = async () => {
+            if (deferredPrompt) {
+              deferredPrompt.prompt();
+              const { outcome } = await deferredPrompt.userChoice;
+              if (outcome === 'accepted') {
+                btnInstall.style.display = 'none';
+                if (installedNotice) installedNotice.style.display = 'block';
+                toast("Installazione avviata!");
+              }
+              deferredPrompt = null;
+            }
+          };
+        }
+      });
+
+      // Se è iOS Safari
+      if (isIos && !isStandalone) {
+        if (iosGuide) iosGuide.style.display = 'block';
+      }
+    }
   </script>
 </body>
 </html>
