@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-  <title>Korean Book Scanner - Catalogo NLK</title>
+  <title>Korean Book Scanner - Catalogo & Etichette KDC</title>
 
   <!-- Typography & Scanner Engine -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -575,7 +575,7 @@
       <span class="brand-icon">📚</span>
       <div>
         <div class="brand-title">Korean Book Scanner</div>
-        <div class="brand-sub">NLK Catalogazione Condivisa</div>
+        <div class="brand-sub">Catalogo & Etichette KDC</div>
       </div>
     </div>
     <div class="header-btns">
@@ -673,27 +673,18 @@
         <label for="cfgKakaoKey">REST API Key di Kakao (Consigliata)</label>
         <input id="cfgKakaoKey" type="password" placeholder="Incolla la tua REST API Key da developers.kakao.com" autocomplete="off">
         <div class="hint">
-          Copre il 100% dei libri coreani pubblicati (titolo Hangul, autore, editore, copertina e trama).
+          Copre il 100% dei libri coreani pubblicati (titolo Hangul, autore, editore, copertina HD e trama).
         </div>
         <div style="margin-top: 10px;">
           <button class="btn sm" id="btnTestKakao">🔍 Verifica Chiave Kakao</button>
         </div>
-
-        <details style="margin-top: 12px; font-size: 0.82rem; color: var(--mute);">
-          <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">Opzione secondaria: National Library of Korea (NLK)</summary>
-          <div style="margin-top: 8px;">
-            <label for="cfgKey">Chiave NLK cert_key (Opzionale)</label>
-            <input id="cfgKey" type="password" placeholder="Incolla cert_key se possiedi account su nl.go.kr" autocomplete="off">
-            <div class="hint">Utile se in futuro riceverai la chiave ministeriale per i codici KDC/DDC.</div>
-          </div>
-        </details>
       </div>
 
       <div class="settings-card">
         <div class="settings-title">☁️ Spazio Condiviso (Google Sheet)</div>
         <label for="cfgSheet">URL Web App Apps Script</label>
         <input id="cfgSheet" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
-        <div class="hint">Generato pubblicando <code>apps-script.gs</code> come Web App (accesso "Chiunque"). Fa anche da proxy anti-CORS per NLK.</div>
+        <div class="hint">Generato pubblicando <code>apps-script.gs</code> come Web App (accesso "Chiunque"). Fa anche da proxy anti-CORS per Kakao e Data4Library.</div>
 
         <label for="cfgToken">Token Condiviso (Password)</label>
         <input id="cfgToken" type="password" placeholder="Es. biblioteca-segreta-2026" autocomplete="off">
@@ -778,7 +769,7 @@
       <label for="mIsbn">ISBN (13 cifre)</label>
       <div style="display:flex; gap:8px;">
         <input id="mIsbn" type="text" placeholder="97889...">
-        <button class="btn sm" id="btnModalLookupNlk" style="white-space:nowrap;">Cerca Libro</button>
+        <button class="btn sm" id="btnModalLookup" style="white-space:nowrap;">Cerca Libro</button>
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -1016,7 +1007,6 @@
       document.getElementById('cfgWho').value = App.cfg.who || '';
       document.getElementById('cfgD4lKey').value = App.cfg.d4lKey || '';
       document.getElementById('cfgKakaoKey').value = App.cfg.kakaoKey || '';
-      document.getElementById('cfgKey').value = App.cfg.key || '';
       document.getElementById('cfgSheet').value = App.cfg.sheet || '';
       document.getElementById('cfgToken').value = App.cfg.token || '';
       document.getElementById('cfgProxy').value = App.cfg.proxy || '';
@@ -1028,7 +1018,6 @@
       App.cfg.who = document.getElementById('cfgWho').value.trim() || 'Operatore';
       App.cfg.d4lKey = document.getElementById('cfgD4lKey').value.trim();
       App.cfg.kakaoKey = document.getElementById('cfgKakaoKey').value.trim();
-      App.cfg.key = document.getElementById('cfgKey').value.trim();
       App.cfg.sheet = document.getElementById('cfgSheet').value.trim();
       App.cfg.token = document.getElementById('cfgToken').value.trim();
       App.cfg.proxy = document.getElementById('cfgProxy').value.trim();
@@ -1100,64 +1089,6 @@
         price: d.price ? `${d.price}원` : (d.sale_price ? `${d.sale_price}원` : ""),
         cover: (d.thumbnail || "").trim(),
         subject: (d.contents || "").trim()
-      };
-    }
-
-    // Interrogazione NLK API con bypass CORS trasparente via Apps Script
-    async function queryNlk(isbn) {
-      if (!App.cfg.key) return null;
-
-      // 1. Priorità: Usa Apps Script come Proxy (Bypass CORS garantito)
-      if (App.cfg.sheet && App.cfg.token) {
-        try {
-          const proxyUrl = `${App.cfg.sheet}?action=proxyNlk&token=${encodeURIComponent(App.cfg.token)}&cert_key=${encodeURIComponent(App.cfg.key)}&isbn=${encodeURIComponent(isbn)}`;
-          const res = await fetch(proxyUrl);
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.docs && data.docs.length > 0) {
-              return mapNlkDoc(data.docs[0]);
-            }
-          }
-        } catch (e) {
-          console.warn("Apps Script proxy non riuscito, tento proxy alternativo/diretto:", e);
-        }
-      }
-
-      // 2. Chiamata con Proxy esterno o Diretta
-      let url = `https://www.nl.go.kr/seoji/SearchApi.do?cert_key=${encodeURIComponent(App.cfg.key)}&result_style=json&page_no=1&page_size=1&isbn=${isbn}`;
-      if (App.cfg.proxy) {
-        url = App.cfg.proxy.endsWith('=') || App.cfg.proxy.endsWith('/') ? App.cfg.proxy + encodeURIComponent(url) : `${App.cfg.proxy}${url}`;
-      }
-
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        if (data && data.docs && data.docs.length > 0) {
-          return mapNlkDoc(data.docs[0]);
-        }
-      } catch (err) {
-        console.warn("Chiamata diretta/proxy fallita:", err);
-      }
-      return null;
-    }
-
-    function mapNlkDoc(d) {
-      return {
-        title: (d.TITLE || "").trim(),
-        vol: (d.VOL || "").trim(),
-        series: (d.SERIES_TITLE || "").trim(),
-        author: (d.AUTHOR || "").trim(),
-        publisher: (d.PUBLISHER || "").trim(),
-        date: (d.PUB_DATE || d.PUBLISH_PREDATE || "").trim(),
-        price: (d.PRE_PRICE || d.SET_PRICE || "").trim(),
-        kdc: (d.KDC || "").trim(),
-        ddc: (d.DDC || "").trim(),
-        pages: (d.PAGE || "").trim(),
-        size: (d.BOOK_SIZE || "").trim(),
-        subject: (d.SUBJECT || "").trim(),
-        addcode: (d.EA_ADD_CODE || "").trim(),
-        cover: (d.TITLE_URL || "").trim()
       };
     }
 
@@ -1254,7 +1185,7 @@
       renderAll();
       toast(`Scansionato ${isbn}. Ricerca metadati...`);
 
-      // 1. Cerca i metadati (Kakao / NLK)
+      // 1. Cerca i metadati (Kakao / Data4Library)
       await enrichBook(isbn);
 
       // 2. Invia la scheda COMPLETA al Google Sheet
@@ -1275,13 +1206,6 @@
           if (!bookData.title && d4l.title) bookData.title = d4l.title;
           if (!bookData.author && d4l.author) bookData.author = d4l.author;
           if (!bookData.publisher && d4l.publisher) bookData.publisher = d4l.publisher;
-        }
-      }
-      // 3. Prova NLK (se configurata)
-      if (App.cfg.key) {
-        const nlkData = await queryNlk(isbn);
-        if (nlkData) {
-          bookData = Object.assign(bookData || {}, nlkData);
         }
       }
       return bookData;
@@ -1846,7 +1770,7 @@
       document.getElementById('btnRetryPending').onclick = () => {
         const notFound = Object.values(App.books).filter(b => b.status !== 'ok');
         if (!notFound.length) return toast("Nessun libro da ricontrollare.");
-        toast(`Ricontrollo ${notFound.length} libri su NLK...`);
+        toast(`Ricontrollo ${notFound.length} libri incompleti...`);
         notFound.forEach(b => enrichBook(b.isbn));
       };
 
@@ -1939,7 +1863,7 @@
         toast("Scheda salvata!");
       };
 
-      document.getElementById('btnModalLookupNlk').onclick = async () => {
+      document.getElementById('btnModalLookup').onclick = async () => {
         const raw = document.getElementById('mIsbn').value.trim();
         const isbn = cleanIsbn(raw) || raw;
         if (!isbn) return alert("Inserisci prima l'ISBN.");

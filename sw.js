@@ -1,5 +1,5 @@
 // Service Worker per Korean Book Scanner (PWA)
-const CACHE_NAME = 'korean-book-scanner-v7';
+const CACHE_NAME = 'korean-book-scanner-v8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -36,8 +36,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Non gestire richieste POST o chiamate ad API esterne dinamiche (Google Script, Kakao, Data4Library, NLK)
-  if (req.method !== 'GET' || req.url.includes('script.google.com') || req.url.includes('kakao.com') || req.url.includes('data4library.kr') || req.url.includes('nl.go.kr')) {
+  // Non gestire richieste POST o chiamate ad API esterne dinamiche (Google Script, Kakao, Data4Library)
+  if (req.method !== 'GET' || req.url.includes('script.google.com') || req.url.includes('kakao.com') || req.url.includes('data4library.kr')) {
     return;
   }
 

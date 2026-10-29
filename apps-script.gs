@@ -1,11 +1,11 @@
 /**
  * ==============================================================================
- * KOREAN BOOK SCANNER - GOOGLE APPS SCRIPT BACKEND (v2.1 - Supporto Kakao & NLK)
+ * KOREAN BOOK SCANNER - GOOGLE APPS SCRIPT BACKEND (v2.2 - Kakao & Data4Library)
  * ==============================================================================
  * Questo script collega l'app su GitHub Pages a Google Sheets.
  * Funziona sia da database condiviso (con LockService anti-conflitti per più
  * operatori), sia da PROXY trasparente per le API di Kakao Daum Books
- * e della National Library of Korea (NLK) per azzerare i blocchi CORS nel browser.
+ * e di Data4Library (도서관 정보나루) per azzerare i blocchi CORS nel browser.
  *
  * ISTRUZIONI:
  * 1. In Google Sheets: Estensioni > Apps Script.
@@ -65,7 +65,7 @@ const HEADER_LABELS = [
   'Add Code',
   'Copertina URL',
   'Note / Scaffale',
-  'Stato NLK',
+  'Stato Metadati',
   'Timestamp',
   'Operatore'
 ];
@@ -191,33 +191,7 @@ function doGet(e) {
       }
     }
 
-    // 4. PROXY NLK: Interroga la National Library of Korea lato server (Bypass CORS al 100%)
-    if (action === 'proxyNlk') {
-      const certKey = params.cert_key;
-      const isbn = params.isbn;
-      if (!certKey || !isbn) {
-        return outJson({ error: 'parametri_mancanti', message: 'cert_key e isbn richiesti' });
-      }
-
-      const nlkUrl = 'https://www.nl.go.kr/seoji/SearchApi.do?cert_key=' +
-        encodeURIComponent(certKey) +
-        '&result_style=json&page_no=1&page_size=1&isbn=' +
-        encodeURIComponent(isbn);
-
-      try {
-        const response = UrlFetchApp.fetch(nlkUrl, {
-          method: 'get',
-          muteHttpExceptions: true,
-          headers: { 'Accept': 'application/json' }
-        });
-        const text = response.getContentText();
-        return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JSON);
-      } catch (proxyErr) {
-        return outJson({ error: 'nlk_proxy_error', message: proxyErr.toString() });
-      }
-    }
-
-    // 3. LIST BOOKS: Ritorna tutti i libri salvati nel foglio
+    // 4. LIST BOOKS: Ritorna tutti i libri salvati nel foglio
     const s = getCatalogSheet();
     const values = s.getDataRange().getValues();
     if (values.length <= 1) {
