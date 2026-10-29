@@ -30,10 +30,11 @@
       --border-strong: #3b4d6b;
       --border-focus: #3b82f6;
       --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-tertiary: #64748b;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --nav-active: #60a5fa;
       --status-synced-text: #34d399;
       --status-synced-bg: rgba(16, 185, 129, 0.12);
       --status-synced-border: rgba(16, 185, 129, 0.3);
@@ -103,7 +104,7 @@
     }
 
     .brand-sub {
-      font-size: 0.72rem;
+      font-size: 0.76rem;
       color: var(--text-secondary);
       font-weight: 500;
       text-transform: uppercase;
@@ -192,7 +193,7 @@
       cursor: pointer;
       flex: 1;
       padding: 6px 4px;
-      font-size: 0.72rem;
+      font-size: 0.76rem;
       font-weight: 500;
       border-radius: var(--radius-md);
       transition: color 0.15s ease;
@@ -207,7 +208,7 @@
     }
 
     .nav-btn.active {
-      color: var(--primary);
+      color: var(--nav-active);
       font-weight: 600;
     }
 
@@ -301,7 +302,7 @@
     }
 
     .stat-title {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -333,7 +334,7 @@
 
     .panel-empty {
       color: var(--text-tertiary);
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       text-align: center;
       padding: 16px 0;
     }
@@ -514,7 +515,7 @@
     }
 
     .field-hint {
-      font-size: 0.72rem;
+      font-size: 0.78rem;
       color: var(--text-tertiary);
       margin-top: 3px;
       line-height: 1.35;
@@ -580,7 +581,7 @@
     }
 
     .book-metadata-line {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-secondary);
       margin-top: 2px;
       margin-bottom: 6px;
@@ -594,7 +595,7 @@
     }
 
     .tag {
-      font-size: 0.7rem;
+      font-size: 0.76rem;
       font-family: var(--font-mono);
       font-variant-numeric: tabular-nums;
       padding: 2px 6px;
@@ -665,7 +666,7 @@
     }
 
     .spine-ticket .row-pfx {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: #0369a1;
       border-bottom: 1px solid #e2e8f0;
@@ -676,7 +677,7 @@
 
     .spine-ticket .row-kdc {
       font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: #0b0f19;
       letter-spacing: -0.2px;
@@ -684,16 +685,16 @@
 
     .spine-ticket .row-aut {
       font-family: var(--font-mono);
-      font-size: 0.74rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: #047857;
     }
 
     .spine-ticket .row-yr {
       font-family: var(--font-mono);
-      font-size: 0.62rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      color: #475569;
+      color: #334155;
       border-top: 1px solid #e2e8f0;
       width: 100%;
       padding-top: 1px;
@@ -1032,7 +1033,7 @@
       <div style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <div>
           <div style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase;">Etichetta di Collocazione</div>
-          <div style="font-size:0.7rem; color:var(--text-tertiary);">KDC 6. ed. / Tavola Lee Jae-chul</div>
+          <div style="font-size:0.75rem; color:var(--text-tertiary);">KDC 6. ed. / Tavola Lee Jae-chul</div>
         </div>
         <div id="modalSpinePreview" class="spine-ticket" style="padding:6px 10px;">
           <span class="row-pfx" id="spPrevPfx">아동</span>
