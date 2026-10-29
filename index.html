@@ -620,6 +620,9 @@
         <div class="hint">
           Copre il 100% dei libri coreani pubblicati (titolo Hangul, autore, editore, copertina e trama).
         </div>
+        <div style="margin-top: 10px;">
+          <button class="btn sm" id="btnTestKakao">🔍 Verifica Chiave Kakao</button>
+        </div>
 
         <details style="margin-top: 12px; font-size: 0.82rem; color: var(--mute);">
           <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">Opzione secondaria: National Library of Korea (NLK)</summary>
@@ -1053,7 +1056,7 @@
       Sound.beep(880, 0.12);
       Sound.vibrate(80);
 
-      // Crea subito record locale per non perdere la scansione
+      // Crea record locale
       const newBook = {
         isbn: isbn,
         title: `ISBN ${isbn}`,
@@ -1077,13 +1080,15 @@
       };
 
       App.books[isbn] = newBook;
-      enqueueSync(isbn);
       saveState();
       renderAll();
-      toast(`Aggiunto ${isbn}. Ricerca NLK in corso...`);
+      toast(`Scansionato ${isbn}. Ricerca metadati...`);
 
-      // Recupera metadati in background (senza bloccare la camera)
-      enrichBook(isbn);
+      // 1. Cerca i metadati (Kakao / NLK)
+      await enrichBook(isbn);
+
+      // 2. Invia la scheda COMPLETA al Google Sheet
+      enqueueSync(isbn);
     }
 
     async function queryBookMeta(isbn) {
@@ -1139,11 +1144,11 @@
       if (!App.cfg.sheet || isFlushing || App.outbox.length === 0) return;
       isFlushing = true;
 
-      const queueCopy = [...App.outbox];
-      for (const isbn of queueCopy) {
+      while (App.outbox.length > 0) {
+        const isbn = App.outbox[0];
         const book = App.books[isbn];
         if (!book) {
-          App.outbox = App.outbox.filter(x => x !== isbn);
+          App.outbox.shift();
           continue;
         }
 
@@ -1161,8 +1166,16 @@
           if (res.ok) {
             const data = await res.json();
             if (data && (data.ok || data.success)) {
-              App.outbox = App.outbox.filter(x => x !== isbn);
+              App.outbox.shift();
+              saveState();
+              renderAll();
+            } else {
+              console.warn("Risposta negativa da Google Sheet:", data);
+              break;
             }
+          } else {
+            console.warn("HTTP non 200 da Google Sheet:", res.status);
+            break;
           }
         } catch (e) {
           console.warn("Invio al foglio in pausa (offline o errore rete):", e);
@@ -1475,6 +1488,18 @@
         readInputsToConfig();
         toast("Impostazioni salvate!");
         flushSync();
+      };
+
+      document.getElementById('btnTestKakao').onclick = async () => {
+        readInputsToConfig();
+        if (!App.cfg.kakaoKey) return toast("Inserisci prima la REST API Key di Kakao.");
+        toast("Test Kakao su ISBN 9788991742253...");
+        const res = await queryKakao('9788991742253');
+        if (res && res.title) {
+          toast(`✅ Kakao OK! Trovato: "${res.title}" (${res.author})`, 5000);
+        } else {
+          toast("❌ Nessuna risposta da Kakao. Verifica la chiave o aggiorna Apps Script.", 5000);
+        }
       };
 
       document.getElementById('btnTestSheet').onclick = async () => {

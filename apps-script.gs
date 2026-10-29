@@ -118,15 +118,15 @@ function doGet(e) {
 
     // 2. PROXY KAKAO DAUM BOOKS: Interroga Kakao Daum Search Books lato server (Bypass CORS)
     if (action === 'proxyKakao') {
-      const kakaoKey = params.kakao_key;
-      const isbn = params.isbn;
+      const kakaoKey = String(params.kakao_key || '').trim();
+      const isbn = String(params.isbn || '').replace(/[-\s]/g, '');
       if (!kakaoKey || !isbn) {
         return outJson({ error: 'parametri_mancanti', message: 'kakao_key e isbn richiesti' });
       }
 
-      const kakaoUrl = 'https://dapi.kakao.com/v3/search/book?target=isbn&size=1&query=' + encodeURIComponent(isbn);
       try {
-        const response = UrlFetchApp.fetch(kakaoUrl, {
+        let kakaoUrl = 'https://dapi.kakao.com/v3/search/book?target=isbn&size=1&query=' + encodeURIComponent(isbn);
+        let response = UrlFetchApp.fetch(kakaoUrl, {
           method: 'get',
           muteHttpExceptions: true,
           headers: {
@@ -134,7 +134,28 @@ function doGet(e) {
             'Accept': 'application/json'
           }
         });
-        const text = response.getContentText();
+        let code = response.getResponseCode();
+        let text = response.getContentText();
+
+        if (code !== 200) {
+          return outJson({ error: 'kakao_api_error', httpCode: code, message: text });
+        }
+
+        let parsed = JSON.parse(text);
+        // Fallback: se con target=isbn non trova risultati, cerca ISBN nel campo generico query
+        if (!parsed.documents || parsed.documents.length === 0) {
+          kakaoUrl = 'https://dapi.kakao.com/v3/search/book?size=1&query=' + encodeURIComponent(isbn);
+          response = UrlFetchApp.fetch(kakaoUrl, {
+            method: 'get',
+            muteHttpExceptions: true,
+            headers: {
+              'Authorization': 'KakaoAK ' + kakaoKey,
+              'Accept': 'application/json'
+            }
+          });
+          text = response.getContentText();
+        }
+
         return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JSON);
       } catch (kakaoErr) {
         return outJson({ error: 'kakao_proxy_error', message: kakaoErr.toString() });
