@@ -166,7 +166,32 @@ function doGet(e) {
       }
     }
 
-    // 3. PROXY NLK: Interroga la National Library of Korea lato server (Bypass CORS al 100%)
+    // 3. PROXY DATA4LIBRARY (KDC Ufficiale Biblioteche Coreane)
+    if (action === 'proxyData4Library') {
+      const authKey = String(params.auth_key || '').trim();
+      const isbn = String(params.isbn || '').replace(/[-\s]/g, '');
+      if (!authKey || !isbn) {
+        return outJson({ error: 'parametri_mancanti', message: 'auth_key e isbn richiesti' });
+      }
+
+      const d4lUrl = 'http://data4library.kr/api/srchDtlList?authKey=' +
+        encodeURIComponent(authKey) +
+        '&isbn13=' + encodeURIComponent(isbn) +
+        '&format=json';
+
+      try {
+        const response = UrlFetchApp.fetch(d4lUrl, {
+          method: 'get',
+          muteHttpExceptions: true
+        });
+        const text = response.getContentText();
+        return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JSON);
+      } catch (d4lErr) {
+        return outJson({ error: 'data4library_proxy_error', message: d4lErr.toString() });
+      }
+    }
+
+    // 4. PROXY NLK: Interroga la National Library of Korea lato server (Bypass CORS al 100%)
     if (action === 'proxyNlk') {
       const certKey = params.cert_key;
       const isbn = params.isbn;

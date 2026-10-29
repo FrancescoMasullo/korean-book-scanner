@@ -657,6 +657,18 @@
       </div>
 
       <div class="settings-card">
+        <div class="settings-title">🏛️ Recupero KDC Ufficiale: Data4Library (도서관 정보나루)</div>
+        <label for="cfgD4lKey">Chiave API authKey (data4library.kr)</label>
+        <input id="cfgD4lKey" type="password" placeholder="Incolla authKey da data4library.kr" autocomplete="off">
+        <div class="hint">
+          Database delle biblioteche pubbliche coreane: assegna automaticamente il codice <strong>KDC ufficiale</strong> (es. <code>813.8</code>).
+        </div>
+        <div style="margin-top: 10px;">
+          <button class="btn sm" id="btnTestD4l">🔍 Verifica Chiave Data4Library</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
         <div class="settings-title">🔑 Motore di Ricerca Libri: Kakao Daum Books</div>
         <label for="cfgKakaoKey">REST API Key di Kakao (Consigliata)</label>
         <input id="cfgKakaoKey" type="password" placeholder="Incolla la tua REST API Key da developers.kakao.com" autocomplete="off">
@@ -905,6 +917,7 @@
       outbox: [], // Array di ISBN in attesa di sync su Sheet
       cfg: {
         who: 'Operatore',
+        d4lKey: 'e6d31102724b2d44859893131dad60fd9cdffc636d90e96c3ca98d4d60eda137',
         kakaoKey: '',
         key: '',
         sheet: '',
@@ -1001,6 +1014,7 @@
 
     function applyConfigToInputs() {
       document.getElementById('cfgWho').value = App.cfg.who || '';
+      document.getElementById('cfgD4lKey').value = App.cfg.d4lKey || '';
       document.getElementById('cfgKakaoKey').value = App.cfg.kakaoKey || '';
       document.getElementById('cfgKey').value = App.cfg.key || '';
       document.getElementById('cfgSheet').value = App.cfg.sheet || '';
@@ -1012,6 +1026,7 @@
 
     function readInputsToConfig() {
       App.cfg.who = document.getElementById('cfgWho').value.trim() || 'Operatore';
+      App.cfg.d4lKey = document.getElementById('cfgD4lKey').value.trim();
       App.cfg.kakaoKey = document.getElementById('cfgKakaoKey').value.trim();
       App.cfg.key = document.getElementById('cfgKey').value.trim();
       App.cfg.sheet = document.getElementById('cfgSheet').value.trim();
@@ -1146,6 +1161,59 @@
       };
     }
 
+    // Interrogazione Data4Library (도서관 정보나루) per il KDC Ufficiale
+    async function queryData4Library(isbn) {
+      if (!App.cfg.d4lKey) return null;
+
+      // 1. Priorità: Proxy Apps Script (evita blocchi CORS o mixed content)
+      if (App.cfg.sheet && App.cfg.token) {
+        try {
+          const proxyUrl = `${App.cfg.sheet}?action=proxyData4Library&token=${encodeURIComponent(App.cfg.token)}&auth_key=${encodeURIComponent(App.cfg.d4lKey)}&isbn=${encodeURIComponent(isbn)}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const data = await res.json();
+            return parseD4lData(data);
+          }
+        } catch (e) {
+          console.warn("Apps Script proxy D4L fallito:", e);
+        }
+      }
+
+      // 2. Chiamata diretta a Data4Library
+      try {
+        const url = `https://data4library.kr/api/srchDtlList?authKey=${encodeURIComponent(App.cfg.d4lKey)}&isbn13=${encodeURIComponent(isbn)}&format=json`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          return parseD4lData(data);
+        }
+      } catch (err) {
+        console.warn("Chiamata diretta D4L fallita:", err);
+      }
+      return null;
+    }
+
+    function parseD4lData(data) {
+      if (!data) return null;
+      if (data.response && data.response.error) {
+        console.warn("Data4Library API message:", data.response.error);
+        return { error: data.response.error };
+      }
+      if (data.response && data.response.detail && data.response.detail.length > 0) {
+        const b = data.response.detail[0].book;
+        if (b) {
+          return {
+            kdc: (b.class_no || '').trim(),
+            title: (b.bookname || '').trim(),
+            author: (b.authors || '').trim(),
+            publisher: (b.publisher || '').trim(),
+            date: (b.publication_year || '').trim()
+          };
+        }
+      }
+      return null;
+    }
+
     // Aggiunta Libro ed elaborazione
     async function addScannedBook(isbn) {
       if (App.books[isbn]) {
@@ -1195,11 +1263,21 @@
 
     async function queryBookMeta(isbn) {
       let bookData = null;
-      // Prova prima Kakao
+      // 1. Prova prima Kakao per i metadati editoriali ricchi (titolo, autore, trama, copertina HD)
       if (App.cfg.kakaoKey) {
         bookData = await queryKakao(isbn);
       }
-      // Se c'è anche la chiave NLK o Kakao non ha trovato nulla
+      // 2. Prova Data4Library per recuperare il KDC ufficiale delle biblioteche coreane
+      if (App.cfg.d4lKey) {
+        const d4l = await queryData4Library(isbn);
+        if (d4l && d4l.kdc) {
+          bookData = Object.assign(bookData || {}, { kdc: d4l.kdc });
+          if (!bookData.title && d4l.title) bookData.title = d4l.title;
+          if (!bookData.author && d4l.author) bookData.author = d4l.author;
+          if (!bookData.publisher && d4l.publisher) bookData.publisher = d4l.publisher;
+        }
+      }
+      // 3. Prova NLK (se configurata)
       if (App.cfg.key) {
         const nlkData = await queryNlk(isbn);
         if (nlkData) {
@@ -1793,6 +1871,20 @@
           toast(`✅ Kakao OK! Trovato: "${res.title}" (${res.author})`, 5000);
         } else {
           toast("❌ Nessuna risposta da Kakao. Verifica la chiave o aggiorna Apps Script.", 5000);
+        }
+      };
+
+      document.getElementById('btnTestD4l').onclick = async () => {
+        readInputsToConfig();
+        if (!App.cfg.d4lKey) return toast("Inserisci prima la authKey di Data4Library.");
+        toast("Test Data4Library su ISBN 9788991742253...");
+        const res = await queryData4Library('9788991742253');
+        if (res && res.kdc) {
+          toast(`✅ Data4Library OK! KDC Trovato: "${res.kdc}"`, 5000);
+        } else if (res && res.error) {
+          toast(`ℹ️ Risposta Data4Library: ${res.error}`, 6000);
+        } else {
+          toast("❌ Nessuna risposta o chiave non attiva. Verifica su data4library.kr", 5000);
         }
       };
 
