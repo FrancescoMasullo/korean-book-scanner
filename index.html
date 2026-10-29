@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BookScanner">
-  <meta name="application-name" content="BookScanner">
-
-  <!-- PWA Manifest & App Icons -->
+  <meta name="description" content="Sistema di catalogazione barcode e generazione etichette KDC per biblioteche coreane">
+  
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-  <title>Korean Book Scanner - Catalogo & Etichette KDC</title>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-  <!-- Typography & Scanner Engine -->
+  <title>Korean Book Scanner - Catalogo e Collocazione KDC</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,38 +22,35 @@
 
   <style>
     :root {
-      --bg: #090d16;
+      --bg: #0b0f19;
       --surface: #111827;
-      --surface-card: #151d30;
-      --surface-elevated: #1e293b;
-      --surface-hover: #222d42;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-strong: rgba(255, 255, 255, 0.16);
-      --card-border-focus: #38bdf8;
-      --text: #f8fafc;
-      --mute: #94a3b8;
-      --subtle: #64748b;
+      --surface-subtle: #182234;
+      --surface-active: #1f2c42;
+      --border: #26334a;
+      --border-strong: #3b4d6b;
+      --border-focus: #3b82f6;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
-      --primary-glow: rgba(37, 99, 235, 0.35);
-      --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.25);
-      --ok: #10b981;
-      --ok-bg: rgba(16, 185, 129, 0.12);
-      --warn: #f59e0b;
-      --warn-bg: rgba(245, 158, 11, 0.12);
-      --err: #ef4444;
-      --err-bg: rgba(239, 68, 68, 0.12);
-      --kdc-color: #c084fc;
-      --gold: #f59e0b;
-      --gold-bg: rgba(245, 158, 11, 0.14);
-      --gold-border: rgba(245, 158, 11, 0.32);
-      --scrollbar-thumb: rgba(148, 163, 184, 0.25);
-      --scrollbar-track: transparent;
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --status-synced-text: #34d399;
+      --status-synced-bg: rgba(16, 185, 129, 0.12);
+      --status-synced-border: rgba(16, 185, 129, 0.3);
+      --status-pending-text: #fbbf24;
+      --status-pending-bg: rgba(245, 158, 11, 0.12);
+      --status-pending-border: rgba(245, 158, 11, 0.3);
+      --status-error-text: #f87171;
+      --status-error-bg: rgba(239, 68, 68, 0.12);
+      --status-error-border: rgba(239, 68, 68, 0.3);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
       --radius-full: 9999px;
+      --font-sans: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --scrollbar-thumb: #334155;
+      --scrollbar-track: transparent;
     }
 
     * {
@@ -69,41 +63,27 @@
     }
 
     body {
-      font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-family: var(--font-sans);
       background: var(--bg);
-      color: var(--text);
+      color: var(--text-primary);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
       line-height: 1.5;
       text-align: start;
       overflow-x: hidden;
+      font-size: 0.9rem;
     }
 
-    /* Ambient background mesh */
-    body::before {
-      content: "";
-      position: fixed;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100vw;
-      height: 60vh;
-      background: radial-gradient(ellipse at 50% 10%, rgba(37, 99, 235, 0.14) 0%, rgba(56, 189, 248, 0.04) 50%, transparent 75%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
+    /* Header */
     header {
-      background: rgba(17, 24, 39, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--surface);
       position: sticky;
       top: 0;
       z-index: 50;
-      padding: calc(10px + env(safe-area-inset-top, 0px)) 18px 12px 18px;
-      border-bottom: 1px solid var(--card-border);
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px 16px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -111,38 +91,23 @@
 
     .brand {
       display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #1e3a8a, #0284c7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-      border: 1px solid rgba(255,255,255,0.18);
+      flex-direction: column;
     }
 
     .brand-title {
       font-weight: 700;
-      font-size: 1.05rem;
-      letter-spacing: -0.02em;
+      font-size: 0.98rem;
+      letter-spacing: -0.01em;
       line-height: 1.2;
-      color: #fff;
+      color: var(--text-primary);
     }
 
     .brand-sub {
       font-size: 0.72rem;
-      color: var(--accent);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .header-btns {
@@ -150,54 +115,54 @@
       gap: 8px;
     }
 
-    .icon-btn {
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
-      color: var(--text);
-      width: 38px;
-      height: 38px;
-      border-radius: 11px;
-      display: flex;
+    .btn-icon {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      height: 36px;
+      padding: 0 10px;
+      border-radius: var(--radius-md);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.05rem;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
-    .icon-btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--card-border-strong);
-      transform: translateY(-1px);
+    .btn-icon:hover {
+      background: var(--surface-active);
+      border-color: var(--border-strong);
     }
 
-    .icon-btn:active {
-      transform: scale(0.92);
+    .btn-icon:active {
+      transform: scale(0.97);
+    }
+
+    .btn-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
     }
 
     main {
       flex: 1;
       padding: 16px;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
       width: 100%;
-      position: relative;
-      z-index: 1;
     }
 
     section {
       display: none;
-      animation: fadeIn 0.2s ease-out;
     }
 
     section.active {
       display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(3px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Bottom Navigation */
@@ -206,15 +171,13 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(17, 24, 39, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--card-border);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
-      padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)) 12px;
+      padding: 6px 12px calc(6px + env(safe-area-inset-bottom, 0px)) 12px;
       z-index: 100;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
     }
 
@@ -222,487 +185,354 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      color: var(--mute);
+      gap: 3px;
+      color: var(--text-secondary);
       background: none;
       border: none;
       cursor: pointer;
       flex: 1;
       padding: 6px 4px;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 500;
-      border-radius: 12px;
-      transition: all 0.15s ease;
+      border-radius: var(--radius-md);
+      transition: color 0.15s ease;
     }
 
-    .nav-btn:active {
-      transform: scale(0.92);
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
     }
 
     .nav-btn.active {
-      color: #fff;
-      font-weight: 700;
-      background: rgba(56, 189, 248, 0.08);
+      color: var(--primary);
+      font-weight: 600;
     }
 
-    .nav-btn.active .nav-icon-wrap {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(56, 189, 248, 0.35);
-    }
-
-    .nav-icon-wrap {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      transition: all 0.2s ease;
-    }
-
-    /* Scanner Viewport */
-    .scanner-box {
-      background: var(--surface-card);
+    /* Scanner View */
+    .scanner-container {
+      background: #000000;
       border-radius: var(--radius-lg);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
       overflow: hidden;
       margin-bottom: 14px;
       position: relative;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
 
     #reader {
       width: 100%;
-      min-height: 280px;
-      background: #020617;
-      position: relative;
+      min-height: 260px;
+      background: #000000;
     }
 
     #reader video {
       object-fit: cover !important;
-      border-radius: var(--radius-lg);
     }
 
-    /* Reticle Corners */
-    .viewfinder-reticle {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 50px;
-      pointer-events: none;
-      z-index: 10;
-      display: none;
-    }
-
-    .scanner-box.scanning .viewfinder-reticle {
-      display: block;
-    }
-
-    .reticle-corner {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border: 3px solid #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-    }
-    .reticle-tl { top: 22px; left: 22px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
-    .reticle-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
-    .reticle-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
-    .reticle-br { bottom: 22px; right: 22px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
-
-    /* Scanning Laser Line */
-    .scan-laser {
-      position: absolute;
-      left: 10%;
-      right: 10%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #38bdf8 25%, #38bdf8 75%, transparent);
-      box-shadow: 0 0 14px 2px #38bdf8;
-      z-index: 12;
-      pointer-events: none;
-      display: none;
-    }
-
-    .scanner-box.scanning .scan-laser {
-      display: block;
-      animation: scanLaser 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-    }
-
-    @keyframes scanLaser {
-      0% { top: 15%; opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { top: 80%; opacity: 0.3; }
-    }
-
-    /* Floating Viewport Controls */
-    .viewport-overlay {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 20;
-      pointer-events: none;
-    }
-
-    .viewport-status-badge {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--card-border);
-      padding: 5px 12px;
-      border-radius: var(--radius-full);
-      font-size: 0.74rem;
-      color: #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      pointer-events: auto;
-    }
-
-    .torch-btn {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--card-border);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.1rem;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: all 0.15s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-
-    .torch-btn.active {
-      background: #eab308;
-      color: #000;
-      box-shadow: 0 0 16px rgba(234, 179, 8, 0.7);
-    }
-
-    .scanner-footer {
+    .scanner-controls-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: var(--surface);
-      border-top: 1px solid var(--card-border);
+      border-top: 1px solid var(--border);
     }
 
-    .status-indicator {
+    .scanner-status {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.82rem;
-      color: var(--mute);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
     }
 
-    .dot {
+    .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--subtle);
-      transition: all 0.2s ease;
+      background: var(--text-tertiary);
     }
 
-    .dot.live {
-      background: var(--ok);
-      box-shadow: 0 0 10px var(--ok);
-      animation: pulse 1.8s infinite;
+    .status-dot.active {
+      background: var(--status-synced-text);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+    .torch-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
     }
 
-    /* Stats Strip */
-    .stats-strip {
+    /* Summary Stats Grid */
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    .stat-pill {
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
-      padding: 11px 12px;
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
+      padding: 10px 12px;
       text-align: center;
-      transition: transform 0.15s ease, border-color 0.15s ease;
     }
 
-    .stat-pill:hover {
-      border-color: var(--card-border-strong);
-      transform: translateY(-1px);
-    }
-
-    .stat-num {
-      font-size: 1.35rem;
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--accent);
+      font-variant-numeric: tabular-nums;
       line-height: 1.2;
+      color: var(--text-primary);
     }
 
-    .stat-label {
+    .stat-title {
       font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--mute);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
       margin-top: 2px;
-      text-wrap: balance;
     }
 
-    /* Live Shelf / Ultima Scansione Box */
-    .live-shelf-card {
-      background: linear-gradient(135deg, rgba(21, 29, 48, 0.95), rgba(15, 23, 42, 0.95));
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: var(--radius-md);
+    /* Live Shelf Panel */
+    .panel-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       padding: 14px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 14px;
     }
 
-    .live-shelf-header {
+    .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
-      font-size: 0.74rem;
-      font-weight: 700;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
+      letter-spacing: 0.04em;
     }
 
-    .live-shelf-empty {
-      color: var(--mute);
+    .panel-empty {
+      color: var(--text-tertiary);
       font-size: 0.82rem;
       text-align: center;
-      padding: 8px 0;
-      line-height: 1.4;
+      padding: 16px 0;
     }
 
-    /* Filter Bar & Pills */
-    .filter-bar {
+    /* Filters Toolbar */
+    .filter-tabs {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
-      padding: 4px 2px 10px 2px;
-      margin-bottom: 10px;
-      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
       scrollbar-width: none;
     }
-    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-tabs::-webkit-scrollbar { display: none; }
 
-    .filter-pill {
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
-      color: var(--mute);
-      padding: 7px 14px;
-      border-radius: var(--radius-full);
+    .filter-tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
       font-size: 0.78rem;
-      font-weight: 600;
+      font-weight: 500;
       white-space: nowrap;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
       user-select: none;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .filter-pill:hover {
-      background: var(--surface-hover);
-      color: var(--text);
+    .filter-tab:hover {
+      background: var(--surface-subtle);
+      color: var(--text-primary);
     }
 
-    .filter-pill.active {
+    .filter-tab.active {
       background: var(--primary);
-      color: #fff;
       border-color: var(--primary);
-      box-shadow: 0 2px 10px var(--primary-glow);
+      color: #ffffff;
+      font-weight: 600;
     }
 
-    /* Search Bar with Clear */
-    .search-box-wrap {
+    /* Search Input Group */
+    .search-group {
       position: relative;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
-    .search-input {
+    .search-field {
       width: 100%;
-      padding: 12px 38px 12px 40px;
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.9rem;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+      padding: 10px 36px 10px 36px;
       background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
     }
 
-    .search-icon-left {
+    .search-field:focus {
+      border-color: var(--border-focus);
+    }
+
+    .search-icon-slot {
       position: absolute;
-      left: 14px;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--subtle);
-      font-size: 1rem;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
       pointer-events: none;
     }
 
-    .search-clear-btn {
+    .search-icon-slot svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .btn-clear-search {
       position: absolute;
-      right: 12px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      background: #334155;
-      color: #cbd5e1;
+      background: none;
       border: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      font-size: 0.75rem;
+      color: var(--text-secondary);
       cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
+      padding: 4px;
     }
 
-    /* Buttons & Inputs */
+    .btn-clear-search svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Buttons */
     .btn {
       background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 9px 15px;
-      border-radius: 10px;
+      color: #ffffff;
+      border: 1px solid var(--primary);
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      transition: all 0.15s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background 0.15s ease;
     }
 
     .btn:hover {
       background: var(--primary-hover);
-      transform: translateY(-1px);
     }
 
-    .btn:active {
-      transform: scale(0.96);
+    .btn.secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
     }
 
-    .btn.sec {
-      background: var(--surface-card);
-      color: var(--text);
-      border: 1px solid var(--card-border);
-    }
-
-    .btn.sec:hover {
-      background: var(--surface-hover);
-      border-color: var(--card-border-strong);
+    .btn.secondary:hover {
+      background: var(--surface-subtle);
+      border-color: var(--border-strong);
     }
 
     .btn.danger {
-      background: var(--err);
+      background: #b91c1c;
+      border-color: #b91c1c;
+      color: #ffffff;
     }
 
     .btn.danger:hover {
-      background: #dc2626;
+      background: #991b1b;
     }
 
     .btn.sm {
-      padding: 6px 11px;
-      font-size: 0.78rem;
-      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      border-radius: var(--radius-sm);
     }
 
-    input, textarea, select {
+    /* Form Fields */
+    input[type="text"], input[type="password"], input[type="url"], input[type="search"], select, textarea {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--card-border);
-      border-radius: 9px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       background: var(--surface);
-      color: var(--text);
+      color: var(--text-primary);
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       outline: none;
       margin-top: 4px;
-      transition: border-color 0.15s ease;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--border-focus);
     }
 
     label {
-      font-size: 0.78rem;
-      color: var(--mute);
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       display: block;
       margin-top: 10px;
     }
 
-    .hint {
-      font-size: 0.7rem;
-      color: #64748b;
+    .field-hint {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
       margin-top: 3px;
       line-height: 1.35;
     }
 
-    /* Book Cards */
-    .section-title-row {
+    /* Book Record Item */
+    .book-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      margin-bottom: 10px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--mute);
-    }
-
-    .book-card {
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      padding: 13px;
-      margin-bottom: 11px;
-      display: flex;
-      gap: 13px;
+      gap: 12px;
       align-items: stretch;
-      transition: all 0.15s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      position: relative;
     }
 
-    .book-card:hover {
-      border-color: var(--card-border-strong);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-    }
-
-    .book-card-left {
+    .book-cover-col {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -710,29 +540,29 @@
       flex-shrink: 0;
     }
 
-    .book-thumb-wrap {
+    .book-cover {
       width: 58px;
-      height: 82px;
-      border-radius: 8px;
-      background: #0f172a;
-      overflow: hidden;
+      height: 80px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--subtle);
-      font-size: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-      flex-shrink: 0;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
     }
 
-    .book-thumb-wrap img {
+    .book-cover img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
-    .book-body {
+    .book-details {
       flex: 1;
       min-width: 0;
       display: flex;
@@ -742,126 +572,157 @@
 
     .book-title {
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       line-height: 1.35;
-      margin-bottom: 3px;
-      color: #fff;
+      color: var(--text-primary);
       text-wrap: balance;
       overflow-wrap: break-word;
     }
 
-    .book-author {
+    .book-metadata-line {
       font-size: 0.78rem;
-      color: #cbd5e1;
+      color: var(--text-secondary);
+      margin-top: 2px;
       margin-bottom: 6px;
-      line-height: 1.4;
     }
 
-    .book-meta {
+    .badge-row {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
       align-items: center;
-      margin-top: 4px;
     }
 
-    .badge {
-      font-size: 0.69rem;
-      padding: 2.5px 7px;
-      border-radius: 5px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--card-border);
-      font-family: inherit;
+    .tag {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      color: #cbd5e1;
     }
 
-    .badge.prefix-tag {
-      background: rgba(2, 132, 199, 0.14);
+    .tag.prefix {
       color: #38bdf8;
       border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.08);
+      font-family: var(--font-sans);
       font-weight: 600;
     }
 
-    .badge.kdc {
-      color: var(--kdc-color);
+    .tag.kdc {
+      color: #c084fc;
       border-color: rgba(192, 132, 252, 0.3);
-      background: rgba(147, 51, 234, 0.12);
+      background: rgba(192, 132, 252, 0.08);
       font-weight: 600;
     }
 
-    .badge.synced {
-      color: var(--ok);
-      border-color: rgba(16, 185, 129, 0.3);
-      background: var(--ok-bg);
-      font-weight: 500;
+    .tag.synced {
+      color: var(--status-synced-text);
+      background: var(--status-synced-bg);
+      border-color: var(--status-synced-border);
     }
 
-    .badge.pending {
-      color: var(--warn);
-      border-color: rgba(245, 158, 11, 0.3);
-      background: var(--warn-bg);
-      font-weight: 500;
+    .tag.pending {
+      color: var(--status-pending-text);
+      background: var(--status-pending-bg);
+      border-color: var(--status-pending-border);
     }
 
-    .badge.notfound {
-      color: #fb923c;
-      border-color: rgba(251, 146, 60, 0.3);
-      background: rgba(251, 146, 60, 0.12);
+    .tag.error {
+      color: var(--status-error-text);
+      background: var(--status-error-bg);
+      border-color: var(--status-error-border);
     }
 
-    .badge.error {
-      color: var(--err);
-      border-color: rgba(239, 68, 68, 0.3);
-      background: var(--err-bg);
-    }
-
-    .book-card-actions {
+    .book-actions-row {
       display: flex;
       gap: 6px;
       margin-top: 8px;
-      flex-wrap: wrap;
     }
 
-    /* Toast Notification */
-    #toast {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-      background: #020617;
-      color: #f8fafc;
-      padding: 10px 18px;
-      border-radius: 99px;
-      font-size: 0.84rem;
-      font-weight: 500;
-      border: 1px solid var(--card-border-strong);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 150;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      max-width: 90%;
+    /* Technical Spine Label Component (KDC Standard) */
+    .spine-ticket {
+      background: #ffffff;
+      color: #0b0f19;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-sm);
+      padding: 4px 6px;
+      font-family: var(--font-sans);
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.25;
+      min-width: 64px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
+    .spine-ticket .row-pfx {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #0369a1;
+      border-bottom: 1px solid #e2e8f0;
+      width: 100%;
+      padding-bottom: 1px;
+      margin-bottom: 1px;
     }
 
-    /* Modal Backdrop & Dialog Container */
-    .modal-wrap {
+    .spine-ticket .row-kdc {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #0b0f19;
+      letter-spacing: -0.2px;
+    }
+
+    .spine-ticket .row-aut {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #047857;
+    }
+
+    .spine-ticket .row-yr {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: #475569;
+      border-top: 1px solid #e2e8f0;
+      width: 100%;
+      padding-top: 1px;
+      margin-top: 1px;
+    }
+
+    /* Print Label Target Block */
+    .print-ticket-large {
+      width: 140px;
+      background: #ffffff;
+      border: 1.5px solid #000000;
+      border-radius: var(--radius-sm);
+      padding: 12px 8px;
+      margin: 16px auto;
+      text-align: center;
+      color: #000000;
+      font-family: var(--font-sans);
+    }
+
+    .print-ticket-large .row-pfx { font-size: 0.95rem; font-weight: 700; color: #000; }
+    .print-ticket-large .row-kdc { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 800; margin: 3px 0; }
+    .print-ticket-large .row-aut { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; }
+    .print-ticket-large .row-yr  { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 600; margin-top: 3px; }
+
+    /* Dialogs / Modals */
+    .dialog-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.82);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.75);
       z-index: 200;
       display: none;
       align-items: center;
@@ -870,399 +731,334 @@
       overscroll-behavior: contain;
     }
 
-    .modal-wrap.open {
+    .dialog-backdrop.open {
       display: flex;
     }
 
-    .modal-box {
+    .dialog-panel {
       background: var(--surface);
-      border: 1px solid var(--card-border-strong);
+      border: 1px solid var(--border-strong);
       border-radius: var(--radius-lg);
       width: 100%;
       max-width: 540px;
       max-height: 88vh;
       overflow-y: auto;
-      padding: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      padding: 18px;
       overscroll-behavior: contain;
     }
 
-    .modal-header {
+    .dialog-title-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .modal-title {
-      font-size: 1.1rem;
+    .dialog-title {
+      font-size: 1rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
     }
 
-    .settings-card {
-      background: var(--surface-card);
-      border: 1px solid var(--card-border);
+    /* Notification Banner / Toast */
+    #toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      background: var(--surface-subtle);
+      color: var(--text-primary);
+      padding: 8px 16px;
       border-radius: var(--radius-md);
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .settings-title {
-      font-size: 0.94rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    /* Modern Spine Badge (청구기호) */
-    .spine-badge {
-      background: #ffffff;
-      color: #0f172a;
-      border: 1.5px solid #0f172a;
-      border-radius: 6px;
-      padding: 4px 6px;
-      font-family: 'Pretendard', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1px solid var(--border-strong);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      max-width: 90%;
       text-align: center;
-      line-height: 1.25;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.22);
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-width: 66px;
-      flex-shrink: 0;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-      position: relative;
     }
 
-    .spine-badge:hover {
-      transform: scale(1.04);
-      box-shadow: 0 5px 14px rgba(0,0,0,0.3);
+    #toast.show {
+      opacity: 1;
     }
 
-    .spine-badge:active {
-      transform: scale(0.96);
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
-    .spine-badge .sp-pfx {
-      font-size: 0.66rem;
-      font-weight: 700;
-      color: #0284c7;
-      border-bottom: 1px dashed #cbd5e1;
-      width: 100%;
-      padding-bottom: 1px;
-      margin-bottom: 1px;
+    @media (max-width: 480px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
     }
-    .spine-badge .sp-kdc {
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.3px;
-    }
-    .spine-badge .sp-aut {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: #047857;
-      letter-spacing: 0.2px;
-    }
-    .spine-badge .sp-yr {
-      font-size: 0.63rem;
-      color: #475569;
-      font-weight: 600;
-      border-top: 1px dashed #cbd5e1;
-      width: 100%;
-      padding-top: 1px;
-      margin-top: 1px;
-    }
-
-    /* Big Print Sticker Modal */
-    .print-sticker-box {
-      width: 155px;
-      background: #ffffff;
-      border: 2.5px solid #0f172a;
-      border-radius: 8px;
-      padding: 16px 12px;
-      margin: 18px auto;
-      text-align: center;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.3);
-      line-height: 1.3;
-    }
-    .print-sticker-box .sp-pfx { font-size: 1.1rem; font-weight: 700; color: #0284c7; margin-bottom: 4px; }
-    .print-sticker-box .sp-kdc { font-size: 1.55rem; font-weight: 800; color: #0f172a; margin: 4px 0; letter-spacing: -0.5px; }
-    .print-sticker-box .sp-aut { font-size: 1.25rem; font-weight: 700; color: #047857; margin: 4px 0; }
-    .print-sticker-box .sp-yr  { font-size: 1.0rem; font-weight: 600; color: #475569; margin-top: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- Top Header -->
+  <!-- Top Bar -->
   <header>
     <div class="brand">
-      <div class="brand-logo-badge">📚</div>
-      <div>
-        <div class="brand-title">Korean Book Scanner</div>
-        <div class="brand-sub"><span>🏷️</span> Catalogo & Etichette KDC</div>
-      </div>
+      <div class="brand-title">KOREAN BOOK SCANNER</div>
+      <div class="brand-sub">Catalogo & Collocazione KDC</div>
     </div>
     <div class="header-btns">
-      <button class="icon-btn" id="btnManualAdd" title="Aggiungi ISBN a mano">➕</button>
-      <button class="icon-btn" id="btnSyncNow" title="Invia al foglio">☁️</button>
+      <button class="btn-icon" id="btnManualAdd" type="button" title="Nuovo inserimento manuale">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Nuovo</span>
+      </button>
+      <button class="btn-icon" id="btnSyncNow" type="button" title="Sincronizza archivio con Google Sheets">
+        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span>Sync</span>
+      </button>
     </div>
   </header>
 
-  <!-- Views Container -->
+  <!-- Main Container -->
   <main>
 
-    <!-- TAB 1: SCANNER -->
+    <!-- SECTION 1: SCANNER -->
     <section id="tab-scan" class="active">
-      <!-- Quick Stats -->
-      <div class="stats-strip">
-        <div class="stat-pill">
-          <div class="stat-num" id="statTotal">0</div>
-          <div class="stat-label">In Archivio</div>
+      <!-- Status Metrics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-title">Totale Libri</div>
         </div>
-        <div class="stat-pill">
-          <div class="stat-num" id="statSynced" style="color:var(--ok)">0</div>
-          <div class="stat-label">Sincronizzati</div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSynced" style="color:var(--status-synced-text);">0</div>
+          <div class="stat-title">Sincronizzati</div>
         </div>
-        <div class="stat-pill">
-          <div class="stat-num" id="statPending" style="color:var(--warn)">0</div>
-          <div class="stat-label">In Sospeso</div>
+        <div class="stat-card">
+          <div class="stat-value" id="statPending" style="color:var(--status-pending-text);">0</div>
+          <div class="stat-title">In Attesa</div>
         </div>
       </div>
 
-      <!-- Scanner Box with Reticle & Laser -->
-      <div class="scanner-box" id="scannerContainer">
-        <!-- Floating overlay controls -->
-        <div class="viewport-overlay">
-          <div class="viewport-status-badge">
-            <span class="dot" id="camDot"></span>
-            <span id="camStatus">Pronto</span>
-          </div>
-          <button id="btnTorch" class="torch-btn" title="Torcia/Flash">🔦</button>
-        </div>
-
-        <!-- Camera Render Target -->
+      <!-- Viewfinder Box -->
+      <div class="scanner-container" id="scannerContainer">
+        <button id="btnTorch" class="torch-toggle" type="button">Torcia</button>
         <div id="reader"></div>
-
-        <!-- High-tech Viewfinder Targeting Brackets -->
-        <div class="viewfinder-reticle">
-          <div class="reticle-corner reticle-tl"></div>
-          <div class="reticle-corner reticle-tr"></div>
-          <div class="reticle-corner reticle-bl"></div>
-          <div class="reticle-corner reticle-br"></div>
-        </div>
-        <div class="scan-laser"></div>
-
-        <div class="scanner-footer">
-          <span style="font-size:0.8rem; color:var(--mute);">Inquadra il codice a barre ISBN</span>
-          <button class="btn sm" id="btnCamToggle">Avvia Camera</button>
+        <div class="scanner-controls-bar">
+          <div class="scanner-status">
+            <span class="status-dot" id="camDot"></span>
+            <span id="camStatus">Dispositivo pronto</span>
+          </div>
+          <button class="btn sm" id="btnCamToggle" type="button">Avvia Scansione</button>
         </div>
       </div>
 
-      <!-- Live Shelf: Ultimo Libro Scansionato -->
-      <div class="live-shelf-card" id="liveShelfCard">
-        <div class="live-shelf-header">
-          <span>📖 Ultimo Libro Scansionato</span>
-          <span id="liveShelfBadge" style="display:none;" class="badge synced">Registrato</span>
+      <!-- Live Shelf: Ultima Scansione -->
+      <div class="panel-box">
+        <div class="panel-header">
+          <span>Ultima Acquisizione</span>
+          <span id="liveShelfStatus" style="display:none;" class="tag synced">Salvato</span>
         </div>
         <div id="liveShelfContent">
-          <div class="live-shelf-empty">
-            Nessuna scansione recente nella sessione.<br>
-            Tocca <strong>"Avvia Camera"</strong> e inquadra il codice ISBN (978...).
+          <div class="panel-empty">
+            Nessun volume scansionato nella sessione corrente.
           </div>
         </div>
       </div>
 
-      <!-- Ultime Scansioni Sessione -->
-      <div class="section-title-row">
-        <span>Ultime Scansioni</span>
-        <button class="btn sm sec" id="btnRetryPending">Aggiorna Incompleti</button>
+      <!-- Session Recent List -->
+      <div class="panel-box">
+        <div class="panel-header">
+          <span>Scansioni Recenti</span>
+          <button class="btn sm secondary" id="btnRetryPending" type="button">Aggiorna Incompleti</button>
+        </div>
+        <div id="recentList"></div>
       </div>
-      <div id="recentList"></div>
     </section>
 
-    <!-- TAB 2: CATALOGO COMPLETO -->
+    <!-- SECTION 2: CATALOG -->
     <section id="tab-lib">
-      <!-- Search Input with Clear Button -->
-      <div class="search-box-wrap">
-        <span class="search-icon-left">🔍</span>
-        <input type="search" id="libSearch" class="search-input" placeholder="Cerca per titolo, autore, KDC, ISBN, serie...">
-        <button type="button" class="search-clear-btn" id="btnSearchClear" title="Cancella ricerca">✕</button>
+      <!-- Search Input -->
+      <div class="search-group">
+        <span class="search-icon-slot">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="search" id="libSearch" class="search-field" placeholder="Cerca per titolo, autore, ISBN, KDC...">
+        <button type="button" class="btn-clear-search" id="btnSearchClear" title="Azzera ricerca">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
-      <!-- Segmented Category / Status Filter Bar -->
-      <div class="filter-bar" id="catalogFilters">
-        <button class="filter-pill active" data-filter="all">Tutti (<span id="pillCountAll">0</span>)</button>
-        <button class="filter-pill" data-filter="kdc">🏷️ Con KDC</button>
-        <button class="filter-pill" data-filter="kids">👶 Bambini (아동/유아)</button>
-        <button class="filter-pill" data-filter="lang">🇰🇷 Studio Lingua</button>
-        <button class="filter-pill" data-filter="pending">⏳ In attesa sync</button>
-        <button class="filter-pill" data-filter="notfound">⚠️ Da completare</button>
+      <!-- Filter Tabs -->
+      <div class="filter-tabs" id="catalogFilters">
+        <button class="filter-tab active" data-filter="all" type="button">Tutti (<span id="pillCountAll">0</span>)</button>
+        <button class="filter-tab" data-filter="kdc" type="button">Con KDC</button>
+        <button class="filter-tab" data-filter="kids" type="button">Sezione Bambini</button>
+        <button class="filter-tab" data-filter="lang" type="button">Studio Lingua</button>
+        <button class="filter-tab" data-filter="pending" type="button">In attesa sync</button>
+        <button class="filter-tab" data-filter="notfound" type="button">Incompleti</button>
       </div>
 
       <!-- Action Row -->
-      <div style="display: flex; gap: 8px; margin: 10px 0 14px 0;">
-        <button class="btn sm sec" id="btnExportCsv" style="flex:1; justify-content:center;">📊 Esporta CSV (Excel)</button>
-        <button class="btn sm sec" id="btnPullSheet" style="flex:1; justify-content:center;">⬇️ Scarica dal foglio</button>
+      <div style="display:flex; gap:8px; margin-bottom: 12px;">
+        <button class="btn sm secondary" id="btnExportCsv" type="button" style="flex:1;">Esporta CSV (Excel)</button>
+        <button class="btn sm secondary" id="btnPullSheet" type="button" style="flex:1;">Scarica da Sheet</button>
       </div>
 
-      <div class="section-title-row">
-        <span id="catalogCount">Tutti i libri (0)</span>
+      <div style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); margin-bottom:10px;" id="catalogCount">
+        Record caricati: 0
       </div>
+
       <div id="catalogList"></div>
     </section>
 
-    <!-- TAB 3: IMPOSTAZIONI -->
+    <!-- SECTION 3: CONFIGURATION -->
     <section id="tab-set">
-      <div class="settings-card" id="cardInstallPwa">
-        <div class="settings-title">📱 Installa App su Telefono</div>
-        <p style="font-size: 0.82rem; color: var(--mute); margin-bottom: 10px;">
-          Installando l'applicazione potrai usarla a schermo intero come una vera app, con accesso immediato dalla schermata principale del telefono e avvio anche offline.
+      <div class="panel-box" id="cardInstallPwa">
+        <div class="panel-header">Installazione Applicazione (PWA)</div>
+        <p class="field-hint" style="margin-bottom:10px;">
+          Installando l'applicazione sul dispositivo mobile e possibile utilizzarla a schermo intero con avvio autonomo offline.
         </p>
-        <button class="btn sm" id="btnPwaInstall" style="display:none; width: 100%; justify-content: center;">
-          📲 Installa Applicazione su Android
+        <button class="btn sm secondary" id="btnPwaInstall" type="button" style="display:none; width:100%;">
+          Installa Applicazione su Dispositivo
         </button>
-        <div id="pwaIosGuide" style="display:none; font-size: 0.82rem; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);">
-          <strong>Su iPhone / iPad:</strong> tocca il tasto Condividi (icona <span style="font-size:1rem;">⎋</span> o quadrato con freccia verso l'alto) in basso su Safari, quindi seleziona <strong>"Aggiungi alla schermata Home"</strong>.
+        <div id="pwaIosGuide" style="display:none; font-size:0.8rem; background:var(--surface-subtle); padding:10px; border-radius:var(--radius-md); border:1px solid var(--border);">
+          Su iOS Safari: toccare Condividi e selezionare <strong>"Aggiungi alla schermata Home"</strong>.
         </div>
-        <div id="pwaInstalledNotice" style="display:none; font-size: 0.82rem; color: var(--ok);">
-          ✓ Applicazione già installata sulla schermata Home!
-        </div>
-      </div>
-
-      <div class="settings-card">
-        <div class="settings-title">🏛️ Recupero KDC Ufficiale: Data4Library (도서관 정보나루)</div>
-        <label for="cfgD4lKey">Chiave API authKey (data4library.kr)</label>
-        <input id="cfgD4lKey" type="password" placeholder="Incolla authKey da data4library.kr" autocomplete="off">
-        <div class="hint">
-          Database delle biblioteche pubbliche coreane: assegna automaticamente il codice <strong>KDC ufficiale</strong> (es. <code>813.8</code>).
-        </div>
-        <div style="margin-top: 10px;">
-          <button class="btn sm" id="btnTestD4l">🔍 Verifica Chiave Data4Library</button>
+        <div id="pwaInstalledNotice" style="display:none; font-size:0.8rem; color:var(--status-synced-text);">
+          Stato: Applicazione configurata in modalita autonoma.
         </div>
       </div>
 
-      <div class="settings-card">
-        <div class="settings-title">🔑 Motore di Ricerca Libri: Kakao Daum Books</div>
-        <label for="cfgKakaoKey">REST API Key di Kakao (Consigliata)</label>
-        <input id="cfgKakaoKey" type="password" placeholder="Incolla la tua REST API Key da developers.kakao.com" autocomplete="off">
-        <div class="hint">
-          Copre il 100% dei libri coreani pubblicati (titolo Hangul, autore, editore, copertina HD e trama).
+      <div class="panel-box">
+        <div class="panel-header">Provider KDC: Data4Library (도서관 정보나루)</div>
+        <label for="cfgD4lKey">Chiave API authKey</label>
+        <input id="cfgD4lKey" type="password" placeholder="Incolla authKey rilasciata da data4library.kr" autocomplete="off">
+        <div class="field-hint">
+          Database del sistema bibliotecario coreano per l'attribuzione automatica del codice KDC (class_no).
         </div>
-        <div style="margin-top: 10px;">
-          <button class="btn sm" id="btnTestKakao">🔍 Verifica Chiave Kakao</button>
+        <div style="margin-top:10px;">
+          <button class="btn sm secondary" id="btnTestD4l" type="button">Test Connessione Data4Library</button>
         </div>
       </div>
 
-      <div class="settings-card">
-        <div class="settings-title">☁️ Spazio Condiviso (Google Sheet)</div>
+      <div class="panel-box">
+        <div class="panel-header">Provider Metadati: Kakao Daum Books API</div>
+        <label for="cfgKakaoKey">REST API Key</label>
+        <input id="cfgKakaoKey" type="password" placeholder="Incolla REST API Key da developers.kakao.com" autocomplete="off">
+        <div class="field-hint">
+          Recupero dati bibliografici completi: titolo originale Hangul, autori, traduttori, casa editrice, data e copertina.
+        </div>
+        <div style="margin-top:10px;">
+          <button class="btn sm secondary" id="btnTestKakao" type="button">Test Connessione Kakao</button>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <div class="panel-header">Archivio Centrale: Google Apps Script Backend</div>
         <label for="cfgSheet">URL Web App Apps Script</label>
         <input id="cfgSheet" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
-        <div class="hint">Generato pubblicando <code>apps-script.gs</code> come Web App (accesso "Chiunque"). Fa anche da proxy anti-CORS per Kakao e Data4Library.</div>
+        <div class="field-hint">URL generato distribuendo apps-script.gs come applicazione web.</div>
 
-        <label for="cfgToken">Token Condiviso (Password)</label>
-        <input id="cfgToken" type="password" placeholder="Es. biblioteca-segreta-2026" autocomplete="off">
+        <label for="cfgToken">Secret Token di Autenticazione</label>
+        <input id="cfgToken" type="password" placeholder="Token condiviso per il foglio" autocomplete="off">
 
-        <label for="cfgWho">Nome Operatore</label>
-        <input id="cfgWho" type="text" placeholder="Es. Francesco">
-        <div class="hint">Identifica chi ha scansionato il libro nel foglio.</div>
+        <label for="cfgWho">Identificativo Operatore</label>
+        <input id="cfgWho" type="text" placeholder="Nome o postazione operatore">
 
-        <div style="margin-top: 12px; display: flex; gap: 8px;">
-          <button class="btn sm" id="btnTestSheet">Verifica Connessione</button>
-          <button class="btn sm sec" id="btnSaveConfig">Salva Impostazioni</button>
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn sm secondary" id="btnTestSheet" type="button">Test Endpoint Sheet</button>
+          <button class="btn sm" id="btnSaveConfig" type="button">Salva Configurazione</button>
         </div>
       </div>
 
-      <div class="settings-card">
-        <div class="settings-title">⚙️ Opzioni Scanner & Feedback</div>
-        <div style="display: flex; gap: 16px; margin-top: 8px;">
-          <label style="color:var(--text); margin:0; display:flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="cfgSound" checked style="width:auto; margin:0;"> Bip Audio
+      <div class="panel-box">
+        <div class="panel-header">Parametri Scansione e Feedback Hardware</div>
+        <div style="display:flex; gap:16px; margin-top:8px;">
+          <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="cfgSound" checked style="width:auto; margin:0;"> Segnale Audio
           </label>
-          <label style="color:var(--text); margin:0; display:flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="cfgVibrate" checked style="width:auto; margin:0;"> Vibrazione
+          <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="cfgVibrate" checked style="width:auto; margin:0;"> Feedback Tattile
           </label>
         </div>
 
-        <label for="cfgProxy" style="margin-top: 12px;">Proxy CORS Esterno (Opzionale)</label>
-        <input id="cfgProxy" type="text" placeholder="Lascia vuoto per usare il proxy automatico di Apps Script">
+        <label for="cfgProxy" style="margin-top:12px;">Proxy CORS Secondario (Opzionale)</label>
+        <input id="cfgProxy" type="text" placeholder="Predefinito: proxy server-side integrato in Apps Script">
       </div>
 
-      <div class="settings-card">
-        <div class="settings-title">💾 Backup Dati Locali</div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-          <button class="btn sm sec" id="btnBackupJson">Backup JSON</button>
-          <label class="btn sm sec" style="cursor: pointer; margin:0;">
-            Ripristina JSON <input type="file" id="importJsonInput" accept=".json" style="display:none;">
+      <div class="panel-box">
+        <div class="panel-header">Gestione Archivio Locale</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn sm secondary" id="btnBackupJson" type="button">Esporta Backup JSON</button>
+          <label class="btn sm secondary" style="cursor:pointer; margin:0;">
+            Importa Backup JSON <input type="file" id="importJsonInput" accept=".json" style="display:none;">
           </label>
-          <button class="btn sm danger" id="btnClearData">Svuota Memoria Locale</button>
+          <button class="btn sm danger" id="btnClearData" type="button">Azzera Archivio Locale</button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Bottom Nav -->
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="tab-scan">
-      <div class="nav-icon-wrap">📷</div>
-      <span>Scansiona</span>
+    <button class="nav-btn active" data-tab="tab-scan" type="button">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span>Scansione</span>
     </button>
-    <button class="nav-btn" data-tab="tab-lib">
-      <div class="nav-icon-wrap">📚</div>
+    <button class="nav-btn" data-tab="tab-lib" type="button">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span>Catalogo</span>
     </button>
-    <button class="nav-btn" data-tab="tab-set">
-      <div class="nav-icon-wrap">⚙️</div>
-      <span>Opzioni</span>
+    <button class="nav-btn" data-tab="tab-set" type="button">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Configurazione</span>
     </button>
   </nav>
 
-  <!-- Modal Manual Add / Edit -->
-  <div class="modal-wrap" id="editModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle">Scheda Libro</div>
-        <button class="icon-btn" onclick="closeModal()">✕</button>
+  <!-- Dialog Modal: Edit Record -->
+  <div class="dialog-backdrop" id="editModal">
+    <div class="dialog-panel">
+      <div class="dialog-title-bar">
+        <div class="dialog-title" id="modalTitle">Scheda Bibliografica</div>
+        <button class="btn-icon" style="height:28px; width:28px; padding:0;" onclick="closeModal()" type="button" title="Chiudi">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
-      <!-- Live Sticker Preview in Modal -->
-      <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: space-around; margin-bottom: 12px;">
-        <div style="font-size: 0.8rem; color: var(--mute);">
-          <strong>Anteprima Etichetta Spina:</strong><br>
-          <span style="font-size:0.72rem; color:#64748b;">(청구기호 KDC 6ª Ed.)</span>
+      <!-- Live Collocation Preview -->
+      <div style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase;">Etichetta di Collocazione</div>
+          <div style="font-size:0.7rem; color:var(--text-tertiary);">KDC 6. ed. / Tavola Lee Jae-chul</div>
         </div>
-        <div id="modalSpinePreview" class="spine-badge" style="padding: 8px 12px; transform: scale(1.1);">
-          <span class="sp-pfx" id="spPrevPfx">아동</span>
-          <span class="sp-kdc" id="spPrevKdc">813.8</span>
-          <span class="sp-aut" id="spPrevAut">김18ㄱ</span>
-          <span class="sp-yr" id="spPrevYr">2010</span>
+        <div id="modalSpinePreview" class="spine-ticket" style="padding:6px 10px;">
+          <span class="row-pfx" id="spPrevPfx">아동</span>
+          <span class="row-kdc" id="spPrevKdc">813.8</span>
+          <span class="row-aut" id="spPrevAut">김18ㄱ</span>
+          <span class="row-yr" id="spPrevYr">2010</span>
         </div>
       </div>
 
-      <label for="mIsbn">ISBN (13 cifre)</label>
+      <label for="mIsbn">Codice ISBN (13 cifre)</label>
       <div style="display:flex; gap:8px;">
         <input id="mIsbn" type="text" placeholder="97889...">
-        <button class="btn sm" id="btnModalLookup" style="white-space:nowrap;">Cerca Libro</button>
+        <button class="btn sm secondary" id="btnModalLookup" type="button" style="white-space:nowrap;">Cerca Metadati</button>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <div class="grid-2col">
         <div>
-          <label for="mPrefix">Prefisso / Sezione (별치기호)</label>
-          <select id="mPrefix" style="width:100%; padding:10px; border-radius:9px; background:var(--card); color:var(--text); border:1px solid var(--card-border); margin-top:4px; font-family:inherit;">
-            <option value="">[Vuoto] Adulti / Generale</option>
-            <option value="아동">아동 (Bambini 7-12 anni)</option>
-            <option value="유아">유아 (Prima Infanzia 0-6)</option>
-            <option value="한국어학습">한국어학습 (Studio Lingua)</option>
+          <label for="mPrefix">Sezione di Collocazione (별치기호)</label>
+          <select id="mPrefix">
+            <option value="">Generale / Adulti</option>
+            <option value="아동">아동 (Ragazzi 7-12 anni)</option>
+            <option value="유아">유아 (Prima Infanzia 0-6 anni)</option>
+            <option value="한국어학습">한국어학습 (Studio Lingua Coreana)</option>
             <option value="청소년">청소년 (Young Adult)</option>
             <option value="참고">참고 (Consultazione)</option>
-            <option value="시청각">시청각 (Multimediale)</option>
+            <option value="시청각">시청각 (Materiale Multimediale)</option>
           </select>
         </div>
         <div>
@@ -1271,91 +1067,99 @@
         </div>
       </div>
 
-      <label for="mTitle">Titolo (서명)</label>
-      <input id="mTitle" type="text" placeholder="Titolo libro">
+      <label for="mTitle">Titolo Originale (서명)</label>
+      <input id="mTitle" type="text" placeholder="Titolo in caratteri Hangul">
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <div class="grid-2col">
         <div>
           <label for="mVol">Volume (권)</label>
           <input id="mVol" type="text" placeholder="Es. 1, 2">
         </div>
         <div>
-          <label for="mSeries">Serie / Collana</label>
-          <input id="mSeries" type="text" placeholder="Nome serie">
+          <label for="mSeries">Serie / Collana (총서)</label>
+          <input id="mSeries" type="text" placeholder="Titolo della collana">
         </div>
       </div>
 
-      <label for="mAuthor">Autore (저자)</label>
-      <input id="mAuthor" type="text" placeholder="Autore">
-
-      <label for="mPublisher">Editore (출판사)</label>
-      <input id="mPublisher" type="text" placeholder="Editore">
-
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <div class="grid-2col">
         <div>
-          <label for="mKdc">Codice KDC</label>
+          <label for="mAuthor">Autore Principale (저자)</label>
+          <input id="mAuthor" type="text" placeholder="Cognome e nome autore">
+        </div>
+        <div>
+          <label for="mPublisher">Editore (출판사)</label>
+          <input id="mPublisher" type="text" placeholder="Casa editrice">
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <label for="mKdc">Codice KDC (한국십진분류)</label>
           <input id="mKdc" type="text" placeholder="Es. 813.8">
         </div>
         <div>
-          <label for="mDdc">Codice DDC</label>
+          <label for="mDdc">Codice DDC (Dewey)</label>
           <input id="mDdc" type="text" placeholder="Es. 895.7">
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <div class="grid-2col">
         <div>
-          <label for="mDate">Data / Anno</label>
+          <label for="mDate">Anno di Pubblicazione</label>
           <input id="mDate" type="text" placeholder="Es. 2023">
         </div>
         <div>
-          <label for="mPages">Pagine</label>
-          <input id="mPages" type="text" placeholder="Es. 320 p.">
+          <label for="mPages">Consistenza / Pagine</label>
+          <input id="mPages" type="text" placeholder="Es. 240 p.">
         </div>
       </div>
 
-      <label for="mNotes">Note / Collocazione (Scaffale)</label>
-      <input id="mNotes" type="text" placeholder="Es. Scaffale A-2, Donazione">
+      <label for="mNotes">Note di Scaffale / Collocazione Fisica</label>
+      <input id="mNotes" type="text" placeholder="Es. Scaffale B-1, Donazione">
 
-      <div style="display:flex; justify-content: flex-end; gap:8px; margin-top: 16px;">
-        <button class="btn sec" onclick="closeModal()">Annulla</button>
-        <button class="btn" id="btnModalSave">Salva Scheda</button>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+        <button class="btn secondary" onclick="closeModal()" type="button">Annulla</button>
+        <button class="btn" id="btnModalSave" type="button">Salva Record</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Print Label Preview -->
-  <div class="modal-wrap" id="labelModal">
-    <div class="modal-box" style="max-width: 380px; text-align: center;">
-      <div class="modal-header">
-        <div class="modal-title">Etichetta da Spina (청구기호)</div>
-        <button class="icon-btn" onclick="closeLabelModal()">✕</button>
+  <!-- Dialog Modal: Print Label -->
+  <div class="dialog-backdrop" id="labelModal">
+    <div class="dialog-panel" style="max-width:380px; text-align:center;">
+      <div class="dialog-title-bar">
+        <div class="dialog-title">Etichetta Dorso (청구기호)</div>
+        <button class="btn-icon" style="height:28px; width:28px; padding:0;" onclick="closeLabelModal()" type="button" title="Chiudi">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
-      <p style="font-size: 0.82rem; color: var(--mute);">
-        Sticker adesivo per il dorso del libro.<br>Applicare a 2 cm dal bordo inferiore.
+      <p class="field-hint" style="text-align:center;">
+        Formato standard etichetta biblioteca (32x40 mm).<br>Applicazione raccomandata: a 20 mm dal bordo inferiore.
       </p>
 
-      <div class="print-sticker-box" id="printStickerElement">
-        <div class="sp-pfx" id="prPfx">아동</div>
-        <div class="sp-kdc" id="prKdc">813.8</div>
-        <div class="sp-aut" id="prAut">김18ㄱ</div>
-        <div class="sp-yr" id="prYr">2010 v.1</div>
+      <div class="print-ticket-large" id="printStickerElement">
+        <div class="row-pfx" id="prPfx">아동</div>
+        <div class="row-kdc" id="prKdc">813.8</div>
+        <div class="row-aut" id="prAut">김18ㄱ</div>
+        <div class="row-yr" id="prYr">2010 v.1</div>
       </div>
 
-      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 14px;">
-        <button class="btn sec" onclick="closeLabelModal()">Chiudi</button>
-        <button class="btn" id="btnPrintLabelNow">🖨️ Stampa Sticker</button>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:14px;">
+        <button class="btn secondary" onclick="closeLabelModal()" type="button">Chiudi</button>
+        <button class="btn" id="btnPrintLabelNow" type="button">Stampa Etichetta</button>
       </div>
     </div>
   </div>
 
+  <!-- Notification Banner -->
   <div id="toast"></div>
 
-  <!-- Audio Synthesis -->
+  <!-- Audio Hardware Feedback -->
   <script>
     const Sound = {
       ctx: null,
-      beep(freq = 880, dur = 0.12) {
+      beep(freq = 880, dur = 0.1) {
         if (!document.getElementById('cfgSound')?.checked) return;
         try {
           const AC = window.AudioContext || window.webkitAudioContext;
@@ -1367,30 +1171,28 @@
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
           osc.start();
           osc.stop(this.ctx.currentTime + dur);
         } catch (e) {}
       },
-      vibrate(ms = 80) {
+      vibrate(ms = 60) {
         if (!document.getElementById('cfgVibrate')?.checked) return;
         try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
       }
     };
   </script>
 
-  <!-- Application Logic -->
+  <!-- Application Engine -->
   <script>
-    // State
     const App = {
-      books: {}, // Struttura { [isbn]: BookObject } con retrocompatibilità sia da array che da dict
-      outbox: [], // Array di ISBN in attesa di sync su Sheet
+      books: {},
+      outbox: [],
       cfg: {
         who: 'Operatore',
         d4lKey: 'e6d31102724b2d44859893131dad60fd9cdffc636d90e96c3ca98d4d60eda137',
         kakaoKey: '',
-        key: '',
         sheet: '',
         token: '',
         proxy: '',
@@ -1405,7 +1207,6 @@
       torchState: false
     };
 
-    // Storage Keys
     const KEY_BOOKS = 'kb_books_catalog';
     const KEY_LEGACY_BOOKS = 'books';
     const KEY_OUTBOX = 'kb_outbox';
@@ -1422,11 +1223,11 @@
       t._timer = setTimeout(() => t.classList.remove('show'), ms);
     }
 
-    // ISBN-13 checksum validation
     function validIsbn(code) {
       if (!code) return false;
-      const clean = String(code).replace(/[-\s]/g, '');
-      if (!/^97[89]\d{10}$/.test(clean)) return false;
+      const clean = String(code).replace(/[^0-9X]/gi, '');
+      if (clean.length === 10) return true;
+      if (clean.length !== 13) return false;
       let sum = 0;
       for (let i = 0; i < 12; i++) {
         sum += parseInt(clean[i], 10) * (i % 2 === 0 ? 1 : 3);
@@ -1435,42 +1236,42 @@
       return check === parseInt(clean[12], 10);
     }
 
-    function cleanIsbn(code) {
-      if (!code) return null;
-      const clean = String(code).replace(/[-\s]/g, '');
-      return validIsbn(clean) ? clean : null;
+    function cleanIsbn(text) {
+      if (!text) return '';
+      const m13 = text.match(/\b(97[89]\d{10})\b/);
+      if (m13 && validIsbn(m13[1])) return m13[1];
+      const digits = text.replace(/[^0-9]/g, '');
+      if (digits.length >= 13) {
+        for (let i = 0; i <= digits.length - 13; i++) {
+          const sub = digits.slice(i, i + 13);
+          if (sub.startsWith('978') || sub.startsWith('979')) {
+            if (validIsbn(sub)) return sub;
+          }
+        }
+      }
+      return '';
     }
 
-    // Load / Save Local Storage con migrazione automatica da versioni precedenti
     function loadState() {
       try {
-        // Carica Configurazione
-        const savedCfg = localStorage.getItem(KEY_CFG) || localStorage.getItem(KEY_LEGACY_CFG);
-        if (savedCfg) {
-          App.cfg = Object.assign(App.cfg, JSON.parse(savedCfg));
-        }
-
-        // Carica Libri (supporta sia dict { isbn: b } che array [ b ])
-        const savedBooks = localStorage.getItem(KEY_BOOKS) || localStorage.getItem(KEY_LEGACY_BOOKS);
-        if (savedBooks) {
-          const parsed = JSON.parse(savedBooks);
+        const rawBooks = localStorage.getItem(KEY_BOOKS) || localStorage.getItem(KEY_LEGACY_BOOKS);
+        if (rawBooks) {
+          const parsed = JSON.parse(rawBooks);
           if (Array.isArray(parsed)) {
+            App.books = {};
             parsed.forEach(b => { if (b && b.isbn) App.books[b.isbn] = b; });
           } else if (typeof parsed === 'object') {
             App.books = parsed;
           }
         }
-
-        // Carica Outbox
-        const savedOutbox = localStorage.getItem(KEY_OUTBOX) || localStorage.getItem('outbox');
-        if (savedOutbox) {
-          App.outbox = JSON.parse(savedOutbox);
-        }
+        const rawOutbox = localStorage.getItem(KEY_OUTBOX);
+        if (rawOutbox) App.outbox = JSON.parse(rawOutbox);
+        const rawCfg = localStorage.getItem(KEY_CFG) || localStorage.getItem(KEY_LEGACY_CFG);
+        if (rawCfg) App.cfg = Object.assign(App.cfg, JSON.parse(rawCfg));
       } catch (e) {
-        console.error("Errore caricamento stato:", e);
+        console.error("Errore caricamento persistenza locale:", e);
       }
-
-      applyConfigToInputs();
+      writeConfigToInputs();
       renderAll();
     }
 
@@ -1480,12 +1281,11 @@
         localStorage.setItem(KEY_OUTBOX, JSON.stringify(App.outbox));
         localStorage.setItem(KEY_CFG, JSON.stringify(App.cfg));
       } catch (e) {
-        toast("Spazio locale pieno o errore salvataggio");
+        console.error("Errore salvataggio persistenza locale:", e);
       }
-      updateStats();
     }
 
-    function applyConfigToInputs() {
+    function writeConfigToInputs() {
       document.getElementById('cfgWho').value = App.cfg.who || '';
       document.getElementById('cfgD4lKey').value = App.cfg.d4lKey || '';
       document.getElementById('cfgKakaoKey').value = App.cfg.kakaoKey || '';
@@ -1517,14 +1317,11 @@
       document.getElementById('statTotal').textContent = total;
       document.getElementById('statSynced').textContent = syncedCount;
       document.getElementById('statPending').textContent = pendingCount;
-      document.getElementById('catalogCount').textContent = `Tutti i libri (${total})`;
     }
 
-    // Ricerca tramite Kakao Daum Book API
+    // Kakao Daum Books API
     async function queryKakao(isbn) {
       if (!App.cfg.kakaoKey) return null;
-
-      // 1. Priorità: Proxy Apps Script (evita problemi CORS nel browser)
       if (App.cfg.sheet && App.cfg.token) {
         try {
           const proxyUrl = `${App.cfg.sheet}?action=proxyKakao&token=${encodeURIComponent(App.cfg.token)}&kakao_key=${encodeURIComponent(App.cfg.kakaoKey)}&isbn=${encodeURIComponent(isbn)}`;
@@ -1536,16 +1333,12 @@
             }
           }
         } catch (e) {
-          console.warn("Apps Script proxy Kakao fallito, tento chiamata diretta:", e);
+          console.warn("Proxy Apps Script per Kakao fallito:", e);
         }
       }
-
-      // 2. Chiamata diretta verso Kakao API
       try {
         const url = `https://dapi.kakao.com/v3/search/book?target=isbn&size=1&query=${encodeURIComponent(isbn)}`;
-        const res = await fetch(url, {
-          headers: { 'Authorization': `KakaoAK ${App.cfg.kakaoKey}` }
-        });
+        const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${App.cfg.kakaoKey}` } });
         if (res.ok) {
           const data = await res.json();
           if (data && data.documents && data.documents.length > 0) {
@@ -1553,7 +1346,7 @@
           }
         }
       } catch (err) {
-        console.warn("Chiamata diretta Kakao bloccata dal browser (CORS):", err);
+        console.warn("Chiamata diretta Kakao bloccata:", err);
       }
       return null;
     }
@@ -1568,17 +1361,15 @@
         author: authorStr.trim(),
         publisher: (d.publisher || "").trim(),
         date: d.datetime ? d.datetime.slice(0, 10) : "",
-        price: d.price ? `${d.price}원` : (d.sale_price ? `${d.sale_price}원` : ""),
+        price: d.price ? `${d.price}원` : "",
         cover: (d.thumbnail || "").trim(),
         subject: (d.contents || "").trim()
       };
     }
 
-    // Interrogazione Data4Library (도서관 정보나루) per il KDC Ufficiale
+    // Data4Library API
     async function queryData4Library(isbn) {
       if (!App.cfg.d4lKey) return null;
-
-      // 1. Priorità: Proxy Apps Script (evita blocchi CORS o mixed content)
       if (App.cfg.sheet && App.cfg.token) {
         try {
           const proxyUrl = `${App.cfg.sheet}?action=proxyData4Library&token=${encodeURIComponent(App.cfg.token)}&auth_key=${encodeURIComponent(App.cfg.d4lKey)}&isbn=${encodeURIComponent(isbn)}`;
@@ -1588,11 +1379,9 @@
             return parseD4lData(data);
           }
         } catch (e) {
-          console.warn("Apps Script proxy D4L fallito:", e);
+          console.warn("Proxy Apps Script per Data4Library fallito:", e);
         }
       }
-
-      // 2. Chiamata diretta a Data4Library
       try {
         const url = `https://data4library.kr/api/srchDtlList?authKey=${encodeURIComponent(App.cfg.d4lKey)}&isbn13=${encodeURIComponent(isbn)}&format=json`;
         const res = await fetch(url);
@@ -1601,7 +1390,7 @@
           return parseD4lData(data);
         }
       } catch (err) {
-        console.warn("Chiamata diretta D4L fallita:", err);
+        console.warn("Chiamata diretta Data4Library fallita:", err);
       }
       return null;
     }
@@ -1609,7 +1398,6 @@
     function parseD4lData(data) {
       if (!data) return null;
       if (data.response && data.response.error) {
-        console.warn("Data4Library API message:", data.response.error);
         return { error: data.response.error };
       }
       if (data.response && data.response.detail && data.response.detail.length > 0) {
@@ -1627,19 +1415,17 @@
       return null;
     }
 
-    // Aggiunta Libro ed elaborazione
     async function addScannedBook(isbn) {
       if (App.books[isbn]) {
-        Sound.beep(440, 0.25);
-        Sound.vibrate([100, 60, 100]);
-        toast(`⚠️ Già presente: ${App.books[isbn].title || isbn}`);
+        Sound.beep(440, 0.2);
+        Sound.vibrate([100, 50, 100]);
+        toast(`Volume gia registrato: ${App.books[isbn].title || isbn}`);
         return;
       }
 
-      Sound.beep(880, 0.12);
-      Sound.vibrate(80);
+      Sound.beep(880, 0.1);
+      Sound.vibrate(60);
 
-      // Crea record locale
       const newBook = {
         isbn: isbn,
         title: `ISBN ${isbn}`,
@@ -1667,23 +1453,18 @@
       saveState();
       renderAll();
       updateLiveShelf(isbn);
-      toast(`Scansionato ${isbn}. Ricerca metadati...`);
+      toast(`Acquisito ${isbn}. Interrogazione provider...`);
 
-      // 1. Cerca i metadati (Kakao / Data4Library)
       await enrichBook(isbn);
       updateLiveShelf(isbn);
-
-      // 2. Invia la scheda COMPLETA al Google Sheet
       enqueueSync(isbn);
     }
 
     async function queryBookMeta(isbn) {
       let bookData = null;
-      // 1. Prova prima Kakao per i metadati editoriali ricchi (titolo, autore, trama, copertina HD)
       if (App.cfg.kakaoKey) {
         bookData = await queryKakao(isbn);
       }
-      // 2. Prova Data4Library per recuperare il KDC ufficiale delle biblioteche coreane
       if (App.cfg.d4lKey) {
         const d4l = await queryData4Library(isbn);
         if (d4l && d4l.kdc) {
@@ -1704,14 +1485,14 @@
         const doc = await queryBookMeta(isbn);
         if (doc && (doc.title || doc.author)) {
           Object.assign(book, doc, { status: 'ok', err: '' });
-          toast(`✅ ${book.title}`);
+          toast(`Metadati acquisiti: ${book.title}`);
         } else {
           book.status = 'notfound';
-          toast(`ℹ️ Dati non trovati per ${isbn}. Puoi inserirli a mano.`);
+          toast(`Metadati non trovati per ${isbn}. Inserimento manuale disponibile.`);
         }
       } catch (e) {
         book.status = 'error';
-        book.err = e.message || "Errore recupero dati";
+        book.err = e.message || "Errore di rete";
       }
 
       enqueueSync(isbn);
@@ -1719,7 +1500,6 @@
       renderAll();
     }
 
-    // Coda di sincronizzazione con Google Sheets
     let isFlushing = false;
     function enqueueSync(isbn) {
       if (!App.outbox.includes(isbn)) {
@@ -1759,16 +1539,13 @@
               saveState();
               renderAll();
             } else {
-              console.warn("Risposta negativa da Google Sheet:", data);
               break;
             }
           } else {
-            console.warn("HTTP non 200 da Google Sheet:", res.status);
             break;
           }
         } catch (e) {
-          console.warn("Invio al foglio in pausa (offline o errore rete):", e);
-          break; // Si riprenderà al ritorno online
+          break;
         }
       }
 
@@ -1777,10 +1554,9 @@
       renderAll();
     }
 
-    // Scarica l'intero catalogo dal Google Sheet condiviso
     async function pullFromSheet() {
-      if (!App.cfg.sheet) return toast("Inserisci l'URL di Apps Script nelle Opzioni.");
-      toast("Download dal foglio condiviso...");
+      if (!App.cfg.sheet) return toast("Configurare l'URL di Apps Script nelle opzioni.");
+      toast("Download archivio dal foglio centrale...");
 
       try {
         const url = `${App.cfg.sheet}?token=${encodeURIComponent(App.cfg.token)}`;
@@ -1800,13 +1576,13 @@
 
         saveState();
         renderAll();
-        toast(`✅ Scaricati ${data.books?.length || 0} libri (${countNew} nuovi)!`);
+        toast(`Sincronizzazione completata: ${data.books?.length || 0} record (${countNew} nuovi).`);
       } catch (err) {
-        toast("Errore download: " + err.message);
+        toast("Errore sincronizzazione: " + err.message);
       }
     }
 
-    // Fotocamera e Scanner continuo
+    // Scanner Engine
     async function startScanner() {
       if (App.isScanning) return;
       const camDot = document.getElementById('camDot');
@@ -1814,7 +1590,7 @@
       const btnToggle = document.getElementById('btnCamToggle');
 
       try {
-        camStatus.textContent = "Avvio camera...";
+        camStatus.textContent = "Inizializzazione sensore ottico...";
         App.scanner = new Html5Qrcode("reader");
 
         const config = {
@@ -1844,18 +1620,15 @@
         }
 
         App.isScanning = true;
-        document.getElementById('scannerContainer')?.classList.add('scanning');
-        camDot.classList.add('live');
-        camStatus.textContent = "Camera attiva (scansione continua)";
-        btnToggle.textContent = "Ferma Camera";
+        camDot.classList.add('active');
+        camStatus.textContent = "Sensore attivo (scansione continua)";
+        btnToggle.textContent = "Arresta Scansione";
         btnToggle.classList.add('danger');
 
-        // Check torcia
         checkTorch();
-
       } catch (err) {
-        camStatus.textContent = "Permesso fotocamera negato";
-        toast("Abilita l'accesso alla fotocamera nel browser.");
+        camStatus.textContent = "Accesso alla fotocamera non concesso";
+        toast("Permessi fotocamera non disponibili.");
       }
     }
 
@@ -1866,11 +1639,10 @@
         App.scanner.clear();
       } catch (e) {}
       App.isScanning = false;
-      document.getElementById('scannerContainer')?.classList.remove('scanning');
-      document.getElementById('camDot').classList.remove('live');
-      document.getElementById('camStatus').textContent = "Fotocamera fermata";
+      document.getElementById('camDot').classList.remove('active');
+      document.getElementById('camStatus').textContent = "Dispositivo pronto";
       const btn = document.getElementById('btnCamToggle');
-      btn.textContent = "Avvia Camera";
+      btn.textContent = "Avvia Scansione";
       btn.classList.remove('danger');
       document.getElementById('btnTorch').style.display = 'none';
     }
@@ -1880,19 +1652,19 @@
       try {
         const track = App.scanner.getRunningTrackCameraCapabilities();
         if (track && track.torchFeature().isSupported()) {
-          btnTorch.style.display = 'flex';
+          btnTorch.style.display = 'block';
           btnTorch.onclick = async () => {
             App.torchState = !App.torchState;
             await track.torchFeature().apply(App.torchState);
-            btnTorch.style.background = App.torchState ? 'rgba(234, 179, 8, 0.9)' : 'rgba(15, 23, 42, 0.8)';
+            btnTorch.style.background = App.torchState ? '#f59e0b' : 'rgba(17, 24, 39, 0.85)';
+            btnTorch.style.color = App.torchState ? '#000000' : '#ffffff';
           };
         }
       } catch (e) {}
     }
 
-    // Motore di Calcolo Biblioteconomico Lee Jae-chul (이재철 저자기호표)
+    // Lee Jae-chul Korean Call Number Engine (이재철 저자기호표)
     const KdcEngine = {
-      // Estrae la consonante iniziale (초성) di una sillaba Hangul
       getChoseong(char) {
         if (!char) return '';
         const code = char.charCodeAt(0);
@@ -1903,7 +1675,6 @@
         return char;
       },
 
-      // Mappa delle decine per i cognomi coreani (Tavola Lee Jae-chul)
       getSurnameTens(surname) {
         const map = {
           '김': '10', '강': '11', '고': '13', '권': '14', '곽': '15', '구': '16',
@@ -1926,7 +1697,6 @@
         return initialMap[initial] || '10';
       },
 
-      // Mappa completa delle unità (include tutte le consonanti aspirate)
       getUnitDigit(choseong) {
         switch (choseong) {
           case 'ㄱ': case 'ㄲ': case 'ㅋ': return '1';
@@ -1942,7 +1712,6 @@
         }
       },
 
-      // Calcola il codice autore completo (es. 김18ㄱ)
       computeAuthorCode(authorStr, titleStr) {
         if (!authorStr) return '';
         const cleanAuthor = authorStr.replace(/\(.*?\)/g, '').split(/[,;]/)[0].trim();
@@ -1952,7 +1721,7 @@
         if (firstCode >= 0xAC00 && firstCode <= 0xD7A3) {
           const surname = cleanAuthor.charAt(0);
           const tensStr = this.getSurnameTens(surname);
-          const tensDigit = tensStr.charAt(0); // Decina
+          const tensDigit = tensStr.charAt(0);
 
           let unitDigit = '1';
           if (cleanAuthor.length >= 2) {
@@ -1976,7 +1745,6 @@
         return `${initial}10`;
       },
 
-      // Genera l'etichetta completa (4 righe)
       generateSpineLabel(book) {
         let prefix = book.prefix || '';
         if (!prefix) {
@@ -2010,71 +1778,68 @@
       }
     };
 
-    // Live Shelf (Ultimo Libro Scansionato)
     function updateLiveShelf(isbn) {
       const card = document.getElementById('liveShelfContent');
-      const badge = document.getElementById('liveShelfBadge');
+      const statusBadge = document.getElementById('liveShelfStatus');
       if (!card) return;
       const b = App.books[isbn];
       if (!b) return;
 
-      if (badge) badge.style.display = 'inline-flex';
+      if (statusBadge) statusBadge.style.display = 'inline-flex';
       card.innerHTML = renderCard(b, false);
     }
 
-    // Rendering UI
     function renderCard(b, allowDelete = false) {
       const isPending = App.outbox.includes(b.isbn);
       const syncBadge = isPending
-        ? `<span class="badge pending">⏳ In attesa sync</span>`
-        : `<span class="badge synced">✓ Sincronizzato</span>`;
+        ? `<span class="tag pending">In attesa sync</span>`
+        : `<span class="tag synced">Sincronizzato</span>`;
 
       let statusBadge = '';
-      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Da completare</span>`;
-      else if (b.status === 'error') statusBadge = `<span class="badge error">Errore</span>`;
+      if (b.status === 'notfound') statusBadge = `<span class="tag error">Metadati incompleti</span>`;
+      else if (b.status === 'error') statusBadge = `<span class="tag error">Errore rete</span>`;
 
-      // Calcola etichetta spina (KDC + Lee Jae-chul)
       const spine = KdcEngine.generateSpineLabel(b);
       b.call_number = spine.fullCallNumber;
       b.author_code = spine.authorCode;
 
-      const prefixBadge = spine.prefix ? `<span class="badge prefix-tag">${esc(spine.prefix)}</span>` : '';
-      const kdcBadge = b.kdc ? `<span class="badge kdc">KDC ${esc(b.kdc)}</span>` : '';
-      const yearBadge = b.date ? `<span class="badge">${esc(b.date)}</span>` : '';
+      const prefixTag = spine.prefix ? `<span class="tag prefix">${esc(spine.prefix)}</span>` : '';
+      const kdcTag = b.kdc ? `<span class="tag kdc">KDC ${esc(b.kdc)}</span>` : '';
+      const yearTag = b.date ? `<span class="tag">${esc(b.date)}</span>` : '';
 
       const coverHtml = b.cover
-        ? `<div class="book-thumb-wrap"><img src="${esc(b.cover)}" alt="Cover" loading="lazy" onerror="this.outerHTML='<div class=\\'book-thumb-wrap\\'>📖</div>'"/></div>`
-        : `<div class="book-thumb-wrap">📖</div>`;
+        ? `<div class="book-cover"><img src="${esc(b.cover)}" alt="Copertina" loading="lazy" onerror="this.outerHTML='<div class=\\'book-cover\\'>IMG</div>'"/></div>`
+        : `<div class="book-cover">IMG</div>`;
 
       return `
-        <div class="book-card" id="card-${esc(b.isbn)}">
-          <div class="book-card-left">
+        <div class="book-item" id="card-${esc(b.isbn)}">
+          <div class="book-cover-col">
             ${coverHtml}
-            <div class="spine-badge" title="Tocca per ingrandire o stampare etichetta" onclick="openLabelModal('${esc(b.isbn)}')">
-              ${spine.prefix ? `<span class="sp-pfx">${esc(spine.prefix)}</span>` : ''}
-              <span class="sp-kdc">${esc(spine.kdc)}</span>
-              <span class="sp-aut">${esc(spine.authorCode)}</span>
-              ${spine.yearVol ? `<span class="sp-yr">${esc(spine.yearVol)}</span>` : ''}
+            <div class="spine-ticket" title="Visualizza etichetta di collocazione" onclick="openLabelModal('${esc(b.isbn)}')">
+              ${spine.prefix ? `<span class="row-pfx">${esc(spine.prefix)}</span>` : ''}
+              <span class="row-kdc">${esc(spine.kdc)}</span>
+              <span class="row-aut">${esc(spine.authorCode)}</span>
+              ${spine.yearVol ? `<span class="row-yr">${esc(spine.yearVol)}</span>` : ''}
             </div>
           </div>
-          <div class="book-body">
+          <div class="book-details">
             <div>
-              <div class="book-title">${esc(b.title || 'Senza titolo')}${b.vol ? ' ' + esc(b.vol) : ''}</div>
-              <div class="book-author">${esc(b.author || 'Autore non registrato')} ${b.publisher ? '• ' + esc(b.publisher) : ''}</div>
-              <div class="book-meta">
-                ${prefixBadge}
-                ${kdcBadge}
-                <span class="badge" style="font-family:monospace;">ISBN ${esc(b.isbn)}</span>
-                ${yearBadge}
+              <div class="book-title">${esc(b.title || 'Titolo non registrato')}${b.vol ? ' ' + esc(b.vol) : ''}</div>
+              <div class="book-metadata-line">${esc(b.author || 'Autore non registrato')} ${b.publisher ? '• ' + esc(b.publisher) : ''}</div>
+              <div class="badge-row">
+                ${prefixTag}
+                ${kdcTag}
+                <span class="tag">ISBN ${esc(b.isbn)}</span>
+                ${yearTag}
                 ${syncBadge}
                 ${statusBadge}
               </div>
-              ${b.notes ? `<div style="font-size:0.75rem; color:#a5b4fc; margin-top:5px; background:rgba(99,102,241,0.08); padding:3px 8px; border-radius:6px; border-left:2px solid #6366f1;">📝 ${esc(b.notes)}</div>` : ''}
+              ${b.notes ? `<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:5px; background:var(--surface-subtle); padding:3px 8px; border-radius:var(--radius-sm); border-left:2px solid var(--border-focus);">Nota: ${esc(b.notes)}</div>` : ''}
             </div>
-            <div class="book-card-actions">
-              <button class="btn sm sec" onclick="openLabelModal('${esc(b.isbn)}')">🏷️ Dorso</button>
-              <button class="btn sm sec" onclick="openEditModal('${esc(b.isbn)}')">✏️ Modifica</button>
-              ${allowDelete ? `<button class="btn sm danger" style="padding:4px 8px; font-size:0.72rem;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
+            <div class="book-actions-row">
+              <button class="btn sm secondary" onclick="openLabelModal('${esc(b.isbn)}')">Etichetta</button>
+              <button class="btn sm secondary" onclick="openEditModal('${esc(b.isbn)}')">Modifica</button>
+              ${allowDelete ? `<button class="btn sm danger" onclick="deleteBook('${esc(b.isbn)}')">Rimuovi</button>` : ''}
             </div>
           </div>
         </div>
@@ -2088,13 +1853,11 @@
       const countAllEl = document.getElementById('pillCountAll');
       if (countAllEl) countAllEl.textContent = total;
 
-      // Recent Scans (primi 5)
       const recent = all.slice(0, 5);
       document.getElementById('recentList').innerHTML = recent.length > 0
         ? recent.map(b => renderCard(b, false)).join('')
-        : `<div style="text-align:center; color:var(--mute); font-size:0.85rem; padding:24px 0; background:var(--surface-card); border-radius:var(--radius-md); border:1px dashed var(--card-border);">Nessun libro scansionato in questa sessione.<br>Tocca <strong>"Avvia Camera"</strong> per iniziare!</div>`;
+        : `<div class="panel-empty">Nessun volume acquisito nella sessione corrente.</div>`;
 
-      // Full Catalog with Active Filter & Search
       const q = (document.getElementById('libSearch')?.value || '').trim().toLowerCase();
       const filter = App.activeFilter || 'all';
 
@@ -2124,16 +1887,12 @@
 
       document.getElementById('catalogList').innerHTML = filtered.length > 0
         ? filtered.map(b => renderCard(b, true)).join('')
-        : `<div style="text-align:center; color:var(--mute); font-size:0.85rem; padding:36px 16px; background:var(--surface-card); border-radius:var(--radius-md); border:1px dashed var(--card-border);">
-            <div style="font-size:1.8rem; margin-bottom:8px;">🔍</div>
-            Nessun libro corrisponde ai filtri selezionati.
-          </div>`;
+        : `<div class="panel-empty">Nessun record corrispondente ai filtri specificati.</div>`;
 
-      document.getElementById('catalogCount').textContent = `Risultati: ${filtered.length} di ${total}`;
+      document.getElementById('catalogCount').textContent = `Record visualizzati: ${filtered.length} su ${total}`;
       updateStats();
     }
 
-    // Modal Edit / Manual Add
     let editingIsbn = null;
     function openModal(isbn = null) {
       editingIsbn = isbn;
@@ -2143,7 +1902,7 @@
 
       if (isbn && App.books[isbn]) {
         const b = App.books[isbn];
-        title.textContent = "Modifica Libro";
+        title.textContent = "Modifica Record";
         inputIsbn.value = b.isbn;
         inputIsbn.disabled = true;
         document.getElementById('mPrefix').value = b.prefix || '';
@@ -2159,7 +1918,7 @@
         document.getElementById('mPages').value = b.pages || '';
         document.getElementById('mNotes').value = b.notes || '';
       } else {
-        title.textContent = "Aggiungi Libro";
+        title.textContent = "Nuovo Record Bibliografico";
         inputIsbn.value = '';
         inputIsbn.disabled = false;
         document.getElementById('mPrefix').value = '';
@@ -2190,21 +1949,21 @@
         vol: document.getElementById('mVol').value
       };
       const spine = KdcEngine.generateSpineLabel(tempBook);
-      document.getElementById('spPrevPfx').textContent = spine.prefix || '';
-      document.getElementById('spPrevPfx').style.display = spine.prefix ? 'block' : 'none';
+      const pfxEl = document.getElementById('spPrevPfx');
+      pfxEl.textContent = spine.prefix || '';
+      pfxEl.style.display = spine.prefix ? 'block' : 'none';
       document.getElementById('spPrevKdc').textContent = spine.kdc;
       document.getElementById('spPrevAut').textContent = spine.authorCode;
-      document.getElementById('spPrevYr').textContent = spine.yearVol || '';
-      document.getElementById('spPrevYr').style.display = spine.yearVol ? 'block' : 'none';
+      const yrEl = document.getElementById('spPrevYr');
+      yrEl.textContent = spine.yearVol || '';
+      yrEl.style.display = spine.yearVol ? 'block' : 'none';
 
-      // Se il campo authorCode nel form è vuoto, lo pre-popola automaticamente
       const codeInput = document.getElementById('mAuthorCode');
       if (!codeInput.value && spine.authorCode && spine.authorCode !== '---') {
         codeInput.value = spine.authorCode;
       }
     }
 
-    // Modal Ingrandimento e Stampa Etichetta
     let printingIsbn = null;
     function openLabelModal(isbn) {
       printingIsbn = isbn;
@@ -2231,49 +1990,46 @@
       printingIsbn = null;
     }
 
-    window.openLabelModal = openLabelModal;
-    window.closeLabelModal = closeLabelModal;
-
     function closeModal() {
       document.getElementById('editModal').classList.remove('open');
       editingIsbn = null;
     }
 
     window.openEditModal = (isbn) => openModal(isbn);
+    window.openLabelModal = openLabelModal;
+    window.closeLabelModal = closeLabelModal;
     window.closeModal = closeModal;
 
     window.deleteBook = (isbn) => {
-      if (confirm(`Rimuovere il libro ${isbn} da questo archivio locale?`)) {
+      if (confirm(`Rimuovere il record ${isbn} dall'archivio locale?`)) {
         delete App.books[isbn];
         App.outbox = App.outbox.filter(x => x !== isbn);
         saveState();
         renderAll();
-        toast("Libro rimosso.");
+        toast("Record rimosso dall'archivio locale.");
       }
     };
 
-    // Esportazione CSV UTF-8 con BOM per Excel
     const COLS_CSV = ["isbn","call_number","author_code","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","notes","who","status"];
     function exportCsv() {
       const all = Object.values(App.books);
-      if (all.length === 0) return toast("Nessun libro da esportare.");
+      if (all.length === 0) return toast("Nessun record da esportare.");
 
       const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
       const rows = [COLS_CSV.join(",")].concat(all.map(b => COLS_CSV.map(c => q(b[c])).join(",")));
       const blob = new Blob(["\uFEFF" + rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `catalogo_libri_coreani_${new Date().toISOString().slice(0,10)}.csv`;
+      a.download = `catalogo_kdc_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(a.href);
-      toast("CSV esportato!");
+      toast("File CSV generato.");
     }
 
-    // Setup & Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
 
-      // Tab Navigation
+      // Navigation handler
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -2286,28 +2042,23 @@
         });
       });
 
-      // Scanner Toggle
       document.getElementById('btnCamToggle').onclick = () => App.isScanning ? stopScanner() : startScanner();
-
-      // Top Actions
       document.getElementById('btnManualAdd').onclick = () => openModal();
       document.getElementById('btnSyncNow').onclick = () => {
-        if (!App.cfg.sheet) return toast("Configura l'URL di Apps Script nelle Opzioni.");
+        if (!App.cfg.sheet) return toast("Configurare l'URL di Apps Script nelle opzioni.");
         Object.keys(App.books).forEach(i => { if (!App.outbox.includes(i)) App.outbox.push(i); });
         saveState();
         flushSync();
         toast("Sincronizzazione in corso...");
       };
 
-      // Ricontrolla incompleti
       document.getElementById('btnRetryPending').onclick = () => {
         const notFound = Object.values(App.books).filter(b => b.status !== 'ok');
-        if (!notFound.length) return toast("Nessun libro da ricontrollare.");
-        toast(`Ricontrollo ${notFound.length} libri incompleti...`);
+        if (!notFound.length) return toast("Nessun record incompleto da verificare.");
+        toast(`Interrogazione provider per ${notFound.length} record...`);
         notFound.forEach(b => enrichBook(b.isbn));
       };
 
-      // Search & Clear & CSV & Pull
       const searchInput = document.getElementById('libSearch');
       const clearBtn = document.getElementById('btnSearchClear');
       if (searchInput) {
@@ -2325,17 +2076,15 @@
         };
       }
 
-      // Filter Pills
-      document.querySelectorAll('.filter-pill').forEach(pill => {
+      document.querySelectorAll('.filter-tab').forEach(pill => {
         pill.onclick = () => {
-          document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+          document.querySelectorAll('.filter-tab').forEach(p => p.classList.remove('active'));
           pill.classList.add('active');
           App.activeFilter = pill.dataset.filter;
           renderAll();
         };
       });
 
-      // Modal Light Dismiss (chiusura toccando lo sfondo)
       ['editModal', 'labelModal'].forEach(id => {
         const wrap = document.getElementById(id);
         if (wrap) {
@@ -2351,58 +2100,56 @@
       document.getElementById('btnExportCsv').onclick = exportCsv;
       document.getElementById('btnPullSheet').onclick = pullFromSheet;
 
-      // Settings Save & Test
       document.getElementById('btnSaveConfig').onclick = () => {
         readInputsToConfig();
-        toast("Impostazioni salvate!");
+        toast("Configurazione salvata.");
         flushSync();
       };
 
       document.getElementById('btnTestKakao').onclick = async () => {
         readInputsToConfig();
-        if (!App.cfg.kakaoKey) return toast("Inserisci prima la REST API Key di Kakao.");
+        if (!App.cfg.kakaoKey) return toast("Inserire la REST API Key di Kakao.");
         toast("Test Kakao su ISBN 9788991742253...");
         const res = await queryKakao('9788991742253');
         if (res && res.title) {
-          toast(`✅ Kakao OK! Trovato: "${res.title}" (${res.author})`, 5000);
+          toast(`Kakao OK: "${res.title}" (${res.author})`, 5000);
         } else {
-          toast("❌ Nessuna risposta da Kakao. Verifica la chiave o aggiorna Apps Script.", 5000);
+          toast("Errore interrogazione Kakao. Verificare credenziali.", 5000);
         }
       };
 
       document.getElementById('btnTestD4l').onclick = async () => {
         readInputsToConfig();
-        if (!App.cfg.d4lKey) return toast("Inserisci prima la authKey di Data4Library.");
+        if (!App.cfg.d4lKey) return toast("Inserire la authKey di Data4Library.");
         toast("Test Data4Library su ISBN 9788991742253...");
         const res = await queryData4Library('9788991742253');
         if (res && res.kdc) {
-          toast(`✅ Data4Library OK! KDC Trovato: "${res.kdc}"`, 5000);
+          toast(`Data4Library OK: KDC "${res.kdc}"`, 5000);
         } else if (res && res.error) {
-          toast(`ℹ️ Risposta Data4Library: ${res.error}`, 6000);
+          toast(`Data4Library: ${res.error}`, 6000);
         } else {
-          toast("❌ Nessuna risposta o chiave non attiva. Verifica su data4library.kr", 5000);
+          toast("Nessuna risposta o chiave non attiva su data4library.kr", 5000);
         }
       };
 
       document.getElementById('btnTestSheet').onclick = async () => {
         readInputsToConfig();
-        if (!App.cfg.sheet) return toast("Inserisci l'URL di Apps Script.");
-        toast("Verifico connessione...");
+        if (!App.cfg.sheet) return toast("Inserire l'URL di Apps Script.");
+        toast("Verifica endpoint in corso...");
         try {
           const res = await fetch(`${App.cfg.sheet}?action=ping&token=${encodeURIComponent(App.cfg.token)}`);
           const data = await res.json();
-          if (data && (data.ok || data.success)) toast("✅ Connessione riuscita!");
-          else toast("❌ Token non valido o errore Apps Script.");
+          if (data && (data.ok || data.success)) toast("Connessione endpoint confermata.");
+          else toast("Token non valido o errore Apps Script.");
         } catch (e) {
-          toast("❌ Errore connessione: " + e.message);
+          toast("Errore di rete: " + e.message);
         }
       };
 
-      // Modal Save & Lookup
       document.getElementById('btnModalSave').onclick = () => {
         const rawIsbn = document.getElementById('mIsbn').value.trim();
         const isbn = cleanIsbn(rawIsbn) || rawIsbn;
-        if (!isbn) return alert("Inserisci un ISBN valido.");
+        if (!isbn) return alert("Inserire un codice ISBN valido.");
 
         let book = App.books[isbn] || {
           isbn: isbn,
@@ -2432,14 +2179,14 @@
         saveState();
         renderAll();
         closeModal();
-        toast("Scheda salvata!");
+        toast("Record salvato.");
       };
 
       document.getElementById('btnModalLookup').onclick = async () => {
         const raw = document.getElementById('mIsbn').value.trim();
         const isbn = cleanIsbn(raw) || raw;
-        if (!isbn) return alert("Inserisci prima l'ISBN.");
-        toast("Ricerca dati libro...");
+        if (!isbn) return alert("Inserire prima il codice ISBN.");
+        toast("Interrogazione metadati in corso...");
         const doc = await queryBookMeta(isbn);
         if (doc) {
           document.getElementById('mTitle').value = doc.title || '';
@@ -2452,13 +2199,12 @@
           document.getElementById('mDate').value = doc.date || '';
           document.getElementById('mPages').value = doc.pages || '';
           updateModalSpinePreview();
-          toast("Dati trovati e inseriti!");
+          toast("Metadati acquisiti e inseriti nei campi.");
         } else {
-          toast("Nessun dato trovato per questo ISBN.");
+          toast("Nessun dato restituito dai provider.");
         }
       };
 
-      // Aggiorna l'anteprima sticker in tempo reale quando si modificano i campi
       ['mPrefix', 'mAuthorCode', 'mTitle', 'mAuthor', 'mKdc', 'mDate', 'mVol'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -2467,7 +2213,6 @@
         }
       });
 
-      // Stampa Sticker Singolo
       document.getElementById('btnPrintLabelNow').onclick = () => {
         const printContent = document.getElementById('printStickerElement').outerHTML;
         const printWindow = window.open('', '_blank', 'width=350,height=400');
@@ -2475,15 +2220,15 @@
           <!DOCTYPE html>
           <html>
           <head>
-            <title>Stampa Etichetta Spina</title>
+            <title>Stampa Etichetta Dorso</title>
             <style>
               @page { size: auto; margin: 5mm; }
               body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-              .print-sticker-box {
+              .print-ticket-large {
                 width: 32mm;
                 height: 40mm;
                 border: 1px solid #000;
-                border-radius: 3mm;
+                border-radius: 2mm;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -2492,10 +2237,10 @@
                 box-sizing: border-box;
                 padding: 2mm;
               }
-              .sp-pfx { font-size: 10pt; font-weight: bold; }
-              .sp-kdc { font-size: 13pt; font-weight: 900; margin: 1mm 0; }
-              .sp-aut { font-size: 11pt; font-weight: bold; }
-              .sp-yr  { font-size: 9pt; color: #333; }
+              .row-pfx { font-size: 10pt; font-weight: bold; }
+              .row-kdc { font-size: 13pt; font-weight: 800; margin: 1mm 0; }
+              .row-aut { font-size: 11pt; font-weight: bold; }
+              .row-yr  { font-size: 9pt; color: #333; }
             </style>
           </head>
           <body>
@@ -2509,7 +2254,6 @@
         printWindow.document.close();
       };
 
-      // Backup JSON
       document.getElementById('btnBackupJson').onclick = () => {
         const str = JSON.stringify(App.books, null, 2);
         const a = document.createElement('a');
@@ -2535,7 +2279,7 @@
           });
           saveState();
           renderAll();
-          toast(`Importati ${n} libri!`);
+          toast(`Importati ${n} record.`);
         } catch (err) {
           toast("File JSON non valido.");
         }
@@ -2543,27 +2287,22 @@
       };
 
       document.getElementById('btnClearData').onclick = () => {
-        if (confirm("Vuoi cancellare i libri memorizzati in questa pagina locale? (Il foglio Google non verrà modificato)")) {
+        if (confirm("Cancellare i record presenti nell'archivio locale del browser? (I dati su Google Sheets non saranno modificati)")) {
           App.books = {};
           App.outbox = [];
           saveState();
           renderAll();
-          toast("Dati locali cancellati.");
+          toast("Archivio locale azzerato.");
         }
       };
 
-      // Gestione offline/online
       window.addEventListener('online', flushSync);
       document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
-
-      // Service Worker & PWA Install Prompt
       setupPwaInstallation();
     });
 
-    // PWA Installation Manager
     let deferredPrompt = null;
     function setupPwaInstallation() {
-      // Registra Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js')
@@ -2583,7 +2322,6 @@
         return;
       }
 
-      // Chrome / Edge / Android Event
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -2596,7 +2334,7 @@
               if (outcome === 'accepted') {
                 btnInstall.style.display = 'none';
                 if (installedNotice) installedNotice.style.display = 'block';
-                toast("Installazione avviata!");
+                toast("Installazione avviata.");
               }
               deferredPrompt = null;
             }
@@ -2604,7 +2342,6 @@
         }
       });
 
-      // Se è iOS Safari
       if (isIos && !isStandalone) {
         if (iosGuide) iosGuide.style.display = 'block';
       }
