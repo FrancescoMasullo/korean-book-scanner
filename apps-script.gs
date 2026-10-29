@@ -1,11 +1,11 @@
 /**
  * ==============================================================================
- * KOREAN BOOK SCANNER - GOOGLE APPS SCRIPT BACKEND (v2.0)
+ * KOREAN BOOK SCANNER - GOOGLE APPS SCRIPT BACKEND (v2.1 - Supporto Kakao & NLK)
  * ==============================================================================
  * Questo script collega l'app su GitHub Pages a Google Sheets.
  * Funziona sia da database condiviso (con LockService anti-conflitti per più
- * operatori), sia da PROXY trasparente per l'API della National Library
- * of Korea (NLK) per superare i blocchi CORS nel browser.
+ * operatori), sia da PROXY trasparente per le API di Kakao Daum Books
+ * e della National Library of Korea (NLK) per azzerare i blocchi CORS nel browser.
  *
  * ISTRUZIONI:
  * 1. In Google Sheets: Estensioni > Apps Script.
@@ -116,7 +116,32 @@ function doGet(e) {
       return outJson({ ok: 1, success: true, message: 'Connessione stabilita con successo!' });
     }
 
-    // 2. PROXY NLK: Interroga la National Library of Korea lato server (Bypass CORS al 100%)
+    // 2. PROXY KAKAO DAUM BOOKS: Interroga Kakao Daum Search Books lato server (Bypass CORS)
+    if (action === 'proxyKakao') {
+      const kakaoKey = params.kakao_key;
+      const isbn = params.isbn;
+      if (!kakaoKey || !isbn) {
+        return outJson({ error: 'parametri_mancanti', message: 'kakao_key e isbn richiesti' });
+      }
+
+      const kakaoUrl = 'https://dapi.kakao.com/v3/search/book?target=isbn&size=1&query=' + encodeURIComponent(isbn);
+      try {
+        const response = UrlFetchApp.fetch(kakaoUrl, {
+          method: 'get',
+          muteHttpExceptions: true,
+          headers: {
+            'Authorization': 'KakaoAK ' + kakaoKey,
+            'Accept': 'application/json'
+          }
+        });
+        const text = response.getContentText();
+        return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JSON);
+      } catch (kakaoErr) {
+        return outJson({ error: 'kakao_proxy_error', message: kakaoErr.toString() });
+      }
+    }
+
+    // 3. PROXY NLK: Interroga la National Library of Korea lato server (Bypass CORS al 100%)
     if (action === 'proxyNlk') {
       const certKey = params.cert_key;
       const isbn = params.isbn;

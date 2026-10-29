@@ -577,7 +577,7 @@
       <!-- Ultime Scansioni -->
       <div class="section-title-row">
         <span>Ultime Scansioni</span>
-        <button class="btn sm sec" id="btnRetryPending">Riprova NLK</button>
+        <button class="btn sm sec" id="btnRetryPending">Aggiorna Dati Libri</button>
       </div>
       <div id="recentList"></div>
     </section>
@@ -614,10 +614,21 @@
       </div>
 
       <div class="settings-card">
-        <div class="settings-title">🔑 National Library of Korea (NLK) API</div>
-        <label for="cfgKey">Chiave API NLK (cert_key)</label>
-        <input id="cfgKey" type="password" placeholder="Incolla cert_key da nl.go.kr" autocomplete="off">
-        <div class="hint">Richiedi la chiave gratuita su <strong>nl.go.kr (서지정보유통지원시스템)</strong>. Resta salvata solo su questo telefono.</div>
+        <div class="settings-title">🔑 Motore di Ricerca Libri: Kakao Daum Books</div>
+        <label for="cfgKakaoKey">REST API Key di Kakao (Consigliata)</label>
+        <input id="cfgKakaoKey" type="password" placeholder="Incolla la tua REST API Key da developers.kakao.com" autocomplete="off">
+        <div class="hint">
+          Copre il 100% dei libri coreani pubblicati (titolo Hangul, autore, editore, copertina e trama).
+        </div>
+
+        <details style="margin-top: 12px; font-size: 0.82rem; color: var(--mute);">
+          <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">Opzione secondaria: National Library of Korea (NLK)</summary>
+          <div style="margin-top: 8px;">
+            <label for="cfgKey">Chiave NLK cert_key (Opzionale)</label>
+            <input id="cfgKey" type="password" placeholder="Incolla cert_key se possiedi account su nl.go.kr" autocomplete="off">
+            <div class="hint">Utile se in futuro riceverai la chiave ministeriale per i codici KDC/DDC.</div>
+          </div>
+        </details>
       </div>
 
       <div class="settings-card">
@@ -789,6 +800,7 @@
       outbox: [], // Array di ISBN in attesa di sync su Sheet
       cfg: {
         who: 'Operatore',
+        kakaoKey: '',
         key: '',
         sheet: '',
         token: '',
@@ -884,6 +896,7 @@
 
     function applyConfigToInputs() {
       document.getElementById('cfgWho').value = App.cfg.who || '';
+      document.getElementById('cfgKakaoKey').value = App.cfg.kakaoKey || '';
       document.getElementById('cfgKey').value = App.cfg.key || '';
       document.getElementById('cfgSheet').value = App.cfg.sheet || '';
       document.getElementById('cfgToken').value = App.cfg.token || '';
@@ -894,6 +907,7 @@
 
     function readInputsToConfig() {
       App.cfg.who = document.getElementById('cfgWho').value.trim() || 'Operatore';
+      App.cfg.kakaoKey = document.getElementById('cfgKakaoKey').value.trim();
       App.cfg.key = document.getElementById('cfgKey').value.trim();
       App.cfg.sheet = document.getElementById('cfgSheet').value.trim();
       App.cfg.token = document.getElementById('cfgToken').value.trim();
@@ -913,6 +927,60 @@
       document.getElementById('statSynced').textContent = syncedCount;
       document.getElementById('statPending').textContent = pendingCount;
       document.getElementById('catalogCount').textContent = `Tutti i libri (${total})`;
+    }
+
+    // Ricerca tramite Kakao Daum Book API
+    async function queryKakao(isbn) {
+      if (!App.cfg.kakaoKey) return null;
+
+      // 1. Priorità: Proxy Apps Script (evita problemi CORS nel browser)
+      if (App.cfg.sheet && App.cfg.token) {
+        try {
+          const proxyUrl = `${App.cfg.sheet}?action=proxyKakao&token=${encodeURIComponent(App.cfg.token)}&kakao_key=${encodeURIComponent(App.cfg.kakaoKey)}&isbn=${encodeURIComponent(isbn)}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.documents && data.documents.length > 0) {
+              return mapKakaoDoc(data.documents[0]);
+            }
+          }
+        } catch (e) {
+          console.warn("Apps Script proxy Kakao fallito, tento chiamata diretta:", e);
+        }
+      }
+
+      // 2. Chiamata diretta verso Kakao API
+      try {
+        const url = `https://dapi.kakao.com/v3/search/book?target=isbn&size=1&query=${encodeURIComponent(isbn)}`;
+        const res = await fetch(url, {
+          headers: { 'Authorization': `KakaoAK ${App.cfg.kakaoKey}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.documents && data.documents.length > 0) {
+            return mapKakaoDoc(data.documents[0]);
+          }
+        }
+      } catch (err) {
+        console.warn("Chiamata diretta Kakao bloccata dal browser (CORS):", err);
+      }
+      return null;
+    }
+
+    function mapKakaoDoc(d) {
+      let authorStr = (d.authors || []).join(', ');
+      if (d.translators && d.translators.length > 0) {
+        authorStr += ` (Trad. ${d.translators.join(', ')})`;
+      }
+      return {
+        title: (d.title || "").trim(),
+        author: authorStr.trim(),
+        publisher: (d.publisher || "").trim(),
+        date: d.datetime ? d.datetime.slice(0, 10) : "",
+        price: d.price ? `${d.price}원` : (d.sale_price ? `${d.sale_price}원` : ""),
+        cover: (d.thumbnail || "").trim(),
+        subject: (d.contents || "").trim()
+      };
     }
 
     // Interrogazione NLK API con bypass CORS trasparente via Apps Script
@@ -1018,22 +1086,38 @@
       enrichBook(isbn);
     }
 
+    async function queryBookMeta(isbn) {
+      let bookData = null;
+      // Prova prima Kakao
+      if (App.cfg.kakaoKey) {
+        bookData = await queryKakao(isbn);
+      }
+      // Se c'è anche la chiave NLK o Kakao non ha trovato nulla
+      if (App.cfg.key) {
+        const nlkData = await queryNlk(isbn);
+        if (nlkData) {
+          bookData = Object.assign(bookData || {}, nlkData);
+        }
+      }
+      return bookData;
+    }
+
     async function enrichBook(isbn) {
       const book = App.books[isbn];
       if (!book) return;
 
       try {
-        const doc = await queryNlk(isbn);
+        const doc = await queryBookMeta(isbn);
         if (doc && (doc.title || doc.author)) {
           Object.assign(book, doc, { status: 'ok', err: '' });
           toast(`✅ ${book.title}`);
         } else {
           book.status = 'notfound';
-          toast(`ℹ️ NLK: Dati non trovati per ${isbn}. Puoi completarli a mano.`);
+          toast(`ℹ️ Dati non trovati per ${isbn}. Puoi inserirli a mano.`);
         }
       } catch (e) {
         book.status = 'error';
-        book.err = /fetch/i.test(e.message) ? "Rete o CORS" : e.message;
+        book.err = e.message || "Errore recupero dati";
       }
 
       enqueueSync(isbn);
@@ -1443,8 +1527,8 @@
         const raw = document.getElementById('mIsbn').value.trim();
         const isbn = cleanIsbn(raw) || raw;
         if (!isbn) return alert("Inserisci prima l'ISBN.");
-        toast("Ricerca NLK...");
-        const doc = await queryNlk(isbn);
+        toast("Ricerca dati libro...");
+        const doc = await queryBookMeta(isbn);
         if (doc) {
           document.getElementById('mTitle').value = doc.title || '';
           document.getElementById('mVol').value = doc.vol || '';
@@ -1455,9 +1539,9 @@
           document.getElementById('mDdc').value = doc.ddc || '';
           document.getElementById('mDate').value = doc.date || '';
           document.getElementById('mPages').value = doc.pages || '';
-          toast("Dati NLK trovati e inseriti!");
+          toast("Dati trovati e inseriti!");
         } else {
-          toast("Nessun dato trovato su NLK.");
+          toast("Nessun dato trovato per questo ISBN.");
         }
       };
 
