@@ -1,320 +1,1489 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1b2433">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Catalogo libri coreani</title>
-<style>
-:root{--bg:#eef1f4;--card:#fff;--ink:#1b2433;--mute:#667085;--line:#d9dee5;--acc:#0e6b73;--accfg:#fff;--ok:#1a7f4b;--warn:#b45309;--err:#b42318;
- box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--card:#19212f;--ink:#e8ecf2;--mute:#97a1b2;--line:#2a3447;--acc:#4cc2cc;--accfg:#06262a;--ok:#4ade80;--warn:#fbbf24;--err:#f87171}}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",Roboto,sans-serif}
-body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
-main{max-width:640px;margin:0 auto;padding:14px}
-h1{font-size:20px;margin:4px 0 12px}
-section{display:none}section.on{display:block}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;padding:14px 4px;border:0;background:none;color:var(--mute);font:inherit;font-size:14px}
-nav button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 3px 0 var(--acc)}
-.btn{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:600;background:var(--acc);color:var(--accfg)}
-.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn.sm{padding:7px 10px;font-size:13px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.cam{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:4/3;margin-bottom:10px}
-.cam video{width:100%;height:100%;object-fit:cover}
-.cam .guide{position:absolute;left:10%;right:10%;top:38%;bottom:38%;border:2px solid rgba(255,255,255,.85);border-radius:8px;pointer-events:none}
-.cam .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;text-align:center;padding:20px}
-.cnt{margin:10px 0;color:var(--mute);font-size:14px}
-.book{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
-.book img,.book .ph{width:48px;height:68px;object-fit:cover;border-radius:4px;background:var(--line);flex:none}
-.book .t{font-weight:700;word-break:keep-all}
-.book .m{color:var(--mute);font-size:13px}
-.tag{display:inline-block;font-size:12px;border-radius:99px;padding:1px 8px;border:1px solid currentColor;margin-top:4px}
-.tag.ok{color:var(--ok)}.tag.pending,.tag.notfound{color:var(--warn)}.tag.error{color:var(--err)}
-.book .x{margin-left:auto;background:none;border:0;color:var(--mute);font-size:20px;align-self:flex-start}
-input,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;margin:4px 0 12px}
-label{font-size:14px;font-weight:600}
-small{color:var(--mute);display:block;margin:-8px 0 12px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
-#toast.on{opacity:1}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BookScanner">
+  <title>Korean Book Scanner - Catalogo NLK</title>
+
+  <!-- Typography & Scanner Engine -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --mute: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #38bdf8;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --err: #ef4444;
+      --kdc-color: #a78bfa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+
+    header {
+      background: rgba(30, 41, 59, 0.96);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      font-size: 1.5rem;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--mute);
+    }
+
+    .header-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: #334155;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* Container Views */
+    main {
+      flex: 1;
+      padding: 14px;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    section {
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    /* Navigation */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px)) 0;
+      z-index: 100;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--mute);
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+      padding: 6px 2px;
+      font-size: 0.75rem;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-btn span.icon {
+      font-size: 1.25rem;
+    }
+
+    /* Scanner View */
+    .scanner-box {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    #reader {
+      width: 100%;
+      min-height: 270px;
+      background: #000;
+    }
+
+    #reader video {
+      object-fit: cover !important;
+      border-radius: 16px;
+    }
+
+    .scanner-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #1e293b;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--mute);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--mute);
+    }
+
+    .dot.live {
+      background: var(--ok);
+      box-shadow: 0 0 8px var(--ok);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .torch-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* Buttons & Inputs */
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn.sec {
+      background: #334155;
+      color: var(--text);
+    }
+
+    .btn.danger {
+      background: var(--err);
+    }
+
+    .btn.sm {
+      padding: 5px 9px;
+      font-size: 0.76rem;
+      border-radius: 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      background: var(--card);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    label {
+      font-size: 0.78rem;
+      color: var(--mute);
+      display: block;
+      margin-top: 10px;
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    /* Stats Strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat-pill {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 8px 10px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--mute);
+      margin-top: 1px;
+    }
+
+    /* Book Cards */
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--mute);
+    }
+
+    .book-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 9px;
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .book-thumb {
+      width: 54px;
+      height: 76px;
+      border-radius: 6px;
+      background: #0f172a;
+      object-fit: cover;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mute);
+      font-size: 1.4rem;
+      border: 1px solid #334155;
+    }
+
+    .book-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .book-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      line-height: 1.25;
+      margin-bottom: 3px;
+      word-break: keep-all;
+    }
+
+    .book-author {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      margin-bottom: 4px;
+    }
+
+    .book-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      font-family: monospace;
+    }
+
+    .badge.kdc {
+      color: var(--kdc-color);
+      border-color: #5b21b6;
+    }
+
+    .badge.synced {
+      color: var(--ok);
+      border-color: #065f46;
+    }
+
+    .badge.pending {
+      color: var(--warn);
+      border-color: #92400e;
+    }
+
+    .badge.notfound {
+      color: #fb923c;
+    }
+
+    .badge.error {
+      color: var(--err);
+    }
+
+    .book-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+      background: #020617;
+      color: #f8fafc;
+      padding: 9px 16px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      max-width: 90%;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    /* Modal Backdrop */
+    .modal-wrap {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-wrap.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .settings-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .settings-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+  </style>
 </head>
 <body>
-<main>
-<section id="s-scan" class="on">
-  <h1>Scansiona</h1>
-  <div class="cam"><video id="video" playsinline muted></video><div class="guide"></div><div class="msg" id="camMsg">La fotocamera è spenta</div></div>
-  <div class="row">
-    <button class="btn" id="camBtn">Avvia fotocamera</button>
-    <button class="btn sec" id="manBtn">Inserisci ISBN</button>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-icon">📚</span>
+      <div>
+        <div class="brand-title">Korean Book Scanner</div>
+        <div class="brand-sub">NLK Catalogazione Condivisa</div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="icon-btn" id="btnManualAdd" title="Aggiungi ISBN a mano">➕</button>
+      <button class="icon-btn" id="btnSyncNow" title="Invia al foglio">☁️</button>
+    </div>
+  </header>
+
+  <!-- Views Container -->
+  <main>
+
+    <!-- TAB 1: SCANNER -->
+    <section id="tab-scan" class="active">
+      <div class="scanner-box">
+        <div id="reader"></div>
+        <button id="btnTorch" class="torch-btn" title="Torcia/Flash">🔦</button>
+        <div class="scanner-footer">
+          <div class="status-indicator">
+            <span class="dot" id="camDot"></span>
+            <span id="camStatus">Fotocamera non attiva</span>
+          </div>
+          <button class="btn sm" id="btnCamToggle">Avvia Camera</button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-strip">
+        <div class="stat-pill">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">In Archivio</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-num" id="statSynced" style="color:var(--ok)">0</div>
+          <div class="stat-label">Sincronizzati</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-num" id="statPending" style="color:var(--warn)">0</div>
+          <div class="stat-label">Da Sincronizzare</div>
+        </div>
+      </div>
+
+      <!-- Ultime Scansioni -->
+      <div class="section-title-row">
+        <span>Ultime Scansioni</span>
+        <button class="btn sm sec" id="btnRetryPending">Riprova NLK</button>
+      </div>
+      <div id="recentList"></div>
+    </section>
+
+    <!-- TAB 2: CATALOGO COMPLETO -->
+    <section id="tab-lib">
+      <input type="search" id="libSearch" placeholder="Cerca per titolo, autore, ISBN, serie, KDC...">
+      <div style="display: flex; gap: 8px; margin: 10px 0;">
+        <button class="btn sm sec" id="btnExportCsv">📊 Esporta CSV (Excel)</button>
+        <button class="btn sm sec" id="btnPullSheet">⬇️ Scarica dal foglio</button>
+      </div>
+      <div class="section-title-row">
+        <span id="catalogCount">Tutti i libri (0)</span>
+      </div>
+      <div id="catalogList"></div>
+    </section>
+
+    <!-- TAB 3: IMPOSTAZIONI -->
+    <section id="tab-set">
+      <div class="settings-card">
+        <div class="settings-title">🔑 National Library of Korea (NLK) API</div>
+        <label for="cfgKey">Chiave API NLK (cert_key)</label>
+        <input id="cfgKey" type="password" placeholder="Incolla cert_key da nl.go.kr" autocomplete="off">
+        <div class="hint">Richiedi la chiave gratuita su <strong>nl.go.kr (서지정보유통지원시스템)</strong>. Resta salvata solo su questo telefono.</div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">☁️ Spazio Condiviso (Google Sheet)</div>
+        <label for="cfgSheet">URL Web App Apps Script</label>
+        <input id="cfgSheet" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+        <div class="hint">Generato pubblicando <code>apps-script.gs</code> come Web App (accesso "Chiunque"). Fa anche da proxy anti-CORS per NLK.</div>
+
+        <label for="cfgToken">Token Condiviso (Password)</label>
+        <input id="cfgToken" type="password" placeholder="Es. biblioteca-segreta-2026" autocomplete="off">
+
+        <label for="cfgWho">Nome Operatore</label>
+        <input id="cfgWho" type="text" placeholder="Es. Francesco">
+        <div class="hint">Identifica chi ha scansionato il libro nel foglio.</div>
+
+        <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <button class="btn sm" id="btnTestSheet">Verifica Connessione</button>
+          <button class="btn sm sec" id="btnSaveConfig">Salva Impostazioni</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">⚙️ Opzioni Scanner & Feedback</div>
+        <div style="display: flex; gap: 16px; margin-top: 8px;">
+          <label style="color:var(--text); margin:0; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="cfgSound" checked style="width:auto; margin:0;"> Bip Audio
+          </label>
+          <label style="color:var(--text); margin:0; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="cfgVibrate" checked style="width:auto; margin:0;"> Vibrazione
+          </label>
+        </div>
+
+        <label for="cfgProxy" style="margin-top: 12px;">Proxy CORS Esterno (Opzionale)</label>
+        <input id="cfgProxy" type="text" placeholder="Lascia vuoto per usare il proxy automatico di Apps Script">
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">💾 Backup Dati Locali</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+          <button class="btn sm sec" id="btnBackupJson">Backup JSON</button>
+          <label class="btn sm sec" style="cursor: pointer; margin:0;">
+            Ripristina JSON <input type="file" id="importJsonInput" accept=".json" style="display:none;">
+          </label>
+          <button class="btn sm danger" id="btnClearData">Svuota Memoria Locale</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-scan">
+      <span class="icon">📷</span>
+      <span>Scansiona</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-lib">
+      <span class="icon">📚</span>
+      <span>Catalogo</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-set">
+      <span class="icon">⚙️</span>
+      <span>Opzioni</span>
+    </button>
+  </nav>
+
+  <!-- Modal Manual Add / Edit -->
+  <div class="modal-wrap" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Scheda Libro</div>
+        <button class="icon-btn" onclick="closeModal()">✕</button>
+      </div>
+
+      <label for="mIsbn">ISBN (13 cifre)</label>
+      <div style="display:flex; gap:8px;">
+        <input id="mIsbn" type="text" placeholder="97889...">
+        <button class="btn sm" id="btnModalLookupNlk" style="white-space:nowrap;">Cerca NLK</button>
+      </div>
+
+      <label for="mTitle">Titolo (서명)</label>
+      <input id="mTitle" type="text" placeholder="Titolo libro">
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div>
+          <label for="mVol">Volume (권)</label>
+          <input id="mVol" type="text" placeholder="Es. 1, 2">
+        </div>
+        <div>
+          <label for="mSeries">Serie / Collana</label>
+          <input id="mSeries" type="text" placeholder="Nome serie">
+        </div>
+      </div>
+
+      <label for="mAuthor">Autore (저자)</label>
+      <input id="mAuthor" type="text" placeholder="Autore">
+
+      <label for="mPublisher">Editore (출판사)</label>
+      <input id="mPublisher" type="text" placeholder="Editore">
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div>
+          <label for="mKdc">KDC</label>
+          <input id="mKdc" type="text" placeholder="Es. 813.7">
+        </div>
+        <div>
+          <label for="mDdc">DDC</label>
+          <input id="mDdc" type="text" placeholder="Es. 895.7">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div>
+          <label for="mDate">Data / Anno</label>
+          <input id="mDate" type="text" placeholder="Es. 2023">
+        </div>
+        <div>
+          <label for="mPages">Pagine</label>
+          <input id="mPages" type="text" placeholder="Es. 320 p.">
+        </div>
+      </div>
+
+      <label for="mNotes">Note / Collocazione (Scaffale)</label>
+      <input id="mNotes" type="text" placeholder="Es. Scaffale A-2, Donazione">
+
+      <div style="display:flex; justify-content: flex-end; gap:8px; margin-top: 16px;">
+        <button class="btn sec" onclick="closeModal()">Annulla</button>
+        <button class="btn" id="btnModalSave">Salva Scheda</button>
+      </div>
+    </div>
   </div>
-  <p class="cnt" id="scanCnt"></p>
-  <div id="recent"></div>
-</section>
 
-<section id="s-lib">
-  <h1>Libreria</h1>
-  <input id="q" type="search" placeholder="Cerca per titolo, autore, ISBN…">
-  <div class="row" style="margin-bottom:10px">
-    <button class="btn sec sm" id="retryBtn">Ricontrolla incompleti</button>
-    <button class="btn sec sm" id="csvBtn">Esporta CSV</button>
-    <button class="btn sec sm" id="jsonBtn">Backup JSON</button>
-  </div>
-  <p class="cnt" id="libCnt"></p>
-  <div id="list"></div>
-</section>
+  <div id="toast"></div>
 
-<section id="s-set">
-  <h1>Impostazioni</h1>
-  <p class="cnt">Restano salvate solo su questo dispositivo.</p>
-  <label for="f-who">Il tuo nome (operatore)</label><input id="f-who" autocomplete="off">
-  <label for="f-key">Chiave API NLK (cert_key)</label><input id="f-key" autocomplete="off" autocapitalize="off">
-  <small>Si richiede gratis su nl.go.kr, sezione ISBN/서지정보 Open API.</small>
-  <label for="f-proxy">Proxy CORS (facoltativo)</label><input id="f-proxy" placeholder="https://tuo-worker.workers.dev/?url=" autocapitalize="off">
-  <small>Serve solo se l’API non risponde dal browser.</small>
-  <label for="f-sheet">URL Google Apps Script (spazio condiviso)</label><input id="f-sheet" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off">
-  <label for="f-token">Token condiviso</label><input id="f-token" autocapitalize="off">
-  <div class="row">
-    <button class="btn" id="saveSet">Salva impostazioni</button>
-    <button class="btn sec" id="pullBtn">Scarica dal foglio condiviso</button>
-  </div>
-  <p class="cnt" id="outCnt"></p>
-  <div class="row"><button class="btn sec sm" id="impBtn">Importa backup JSON</button><input id="impFile" type="file" accept=".json" hidden></div>
-</section>
-</main>
+  <!-- Audio Synthesis -->
+  <script>
+    const Sound = {
+      ctx: null,
+      beep(freq = 880, dur = 0.12) {
+        if (!document.getElementById('cfgSound')?.checked) return;
+        try {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!this.ctx && AC) this.ctx = new AC();
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+          osc.start();
+          osc.stop(this.ctx.currentTime + dur);
+        } catch (e) {}
+      },
+      vibrate(ms = 80) {
+        if (!document.getElementById('cfgVibrate')?.checked) return;
+        try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+      }
+    };
+  </script>
 
-<nav>
-  <button data-t="scan" class="on">Scansiona</button>
-  <button data-t="lib">Libreria</button>
-  <button data-t="set">Impostazioni</button>
-</nav>
-<div id="toast"></div>
+  <!-- Application Logic -->
+  <script>
+    // State
+    const App = {
+      books: {}, // Struttura { [isbn]: BookObject } con retrocompatibilità sia da array che da dict
+      outbox: [], // Array di ISBN in attesa di sync su Sheet
+      cfg: {
+        who: 'Operatore',
+        key: '',
+        sheet: '',
+        token: '',
+        proxy: '',
+        sound: true,
+        vibrate: true
+      },
+      scanner: null,
+      isScanning: false,
+      lastScan: { code: '', time: 0 },
+      torchState: false
+    };
 
-<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
-<script>
-const $ = s => document.querySelector(s);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const LS = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ toast("Attenzione: salvataggio locale non riuscito"); return false; } }
-};
-let books = LS.get("books", {});
-let outbox = LS.get("outbox", []);
-let cfg = Object.assign({ who:"", key:"", proxy:"", sheet:"", token:"" }, LS.get("cfg", {}));
-const save = () => LS.set("books", books);
+    // Storage Keys
+    const KEY_BOOKS = 'kb_books_catalog';
+    const KEY_LEGACY_BOOKS = 'books';
+    const KEY_OUTBOX = 'kb_outbox';
+    const KEY_CFG = 'kb_config';
+    const KEY_LEGACY_CFG = 'cfg';
 
-let tt;
-function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2200); }
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* ---------- ISBN ---------- */
-function validIsbn(c){
-  if(!/^97[89]\d{10}$/.test(c)) return false;
-  let s = 0; for(let i = 0; i < 12; i++) s += +c[i] * (i % 2 ? 3 : 1);
-  return (10 - s % 10) % 10 === +c[12];
-}
+    function toast(msg, ms = 2400) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), ms);
+    }
 
-/* ---------- API NLK ---------- */
-async function lookup(isbn){
-  if(!cfg.key) throw new Error("Manca la chiave API");
-  let u = "https://www.nl.go.kr/seoji/SearchApi.do?cert_key=" + encodeURIComponent(cfg.key) +
-          "&result_style=json&page_no=1&page_size=1&isbn=" + isbn;
-  if(cfg.proxy) u = cfg.proxy + encodeURIComponent(u);
-  const r = await fetch(u);
-  if(!r.ok) throw new Error("Errore HTTP " + r.status);
-  const j = await r.json();
-  return (j.docs || [])[0] || null;
-}
-const mapDoc = d => ({
-  title:d.TITLE||"", vol:d.VOL||"", series:d.SERIES_TITLE||"", author:d.AUTHOR||"", publisher:d.PUBLISHER||"",
-  date:d.PUBLISH_PREDATE||"", price:d.PRE_PRICE||"", kdc:d.KDC||"", ddc:d.DDC||"", pages:d.PAGE||"",
-  size:d.BOOK_SIZE||"", subject:d.SUBJECT||"", addcode:d.EA_ADD_CODE||"", cover:d.TITLE_URL||""
-});
+    // ISBN-13 checksum validation
+    function validIsbn(code) {
+      if (!code) return false;
+      const clean = String(code).replace(/[-\s]/g, '');
+      if (!/^97[89]\d{10}$/.test(clean)) return false;
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(clean[i], 10) * (i % 2 === 0 ? 1 : 3);
+      }
+      const check = (10 - (sum % 10)) % 10;
+      return check === parseInt(clean[12], 10);
+    }
 
-async function enrich(isbn){
-  const b = books[isbn]; if(!b) return;
-  try{
-    const d = await lookup(isbn);
-    if(d){ Object.assign(b, mapDoc(d), { status:"ok", err:"" }); } else { b.status = "notfound"; b.err = ""; }
-  }catch(e){
-    b.status = "error";
-    b.err = /fetch/i.test(e.message) ? "Rete o CORS: controlla connessione/proxy" : e.message;
-  }
-  save(); render(); queue(isbn);
-}
+    function cleanIsbn(code) {
+      if (!code) return null;
+      const clean = String(code).replace(/[-\s]/g, '');
+      return validIsbn(clean) ? clean : null;
+    }
 
-/* ---------- Aggiunta libri ---------- */
-let ac;
-function feedback(){
-  try{ navigator.vibrate && navigator.vibrate(60); }catch(e){}
-  try{
-    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-    const o = ac.createOscillator(), g = ac.createGain();
-    o.frequency.value = 880; g.gain.value = .15; o.connect(g); g.connect(ac.destination);
-    o.start(); o.stop(ac.currentTime + .1);
-  }catch(e){}
-}
-function addIsbn(isbn){
-  if(books[isbn]){ toast("Già presente: " + (books[isbn].title || isbn)); return; }
-  books[isbn] = { isbn, status:"pending", ts:Date.now(), who:cfg.who };
-  save(); render(); feedback(); toast("Aggiunto " + isbn);
-  enrich(isbn);
-}
+    // Load / Save Local Storage con migrazione automatica da versioni precedenti
+    function loadState() {
+      try {
+        // Carica Configurazione
+        const savedCfg = localStorage.getItem(KEY_CFG) || localStorage.getItem(KEY_LEGACY_CFG);
+        if (savedCfg) {
+          App.cfg = Object.assign(App.cfg, JSON.parse(savedCfg));
+        }
 
-/* ---------- Scanner ---------- */
-let reader = null, last = { c:"", t:0 };
-async function startScan(){
-  if(reader) return;
-  $("#camMsg").textContent = "Avvio fotocamera…";
-  try{
-    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-    const { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } = ZXing;
-    const hints = new Map();
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13]);
-    hints.set(DecodeHintType.TRY_HARDER, true);
-    reader = new BrowserMultiFormatReader(hints, 250);
-    await reader.decodeFromConstraints(
-      { video:{ facingMode:{ ideal:"environment" }, width:{ ideal:1280 }, height:{ ideal:720 } } },
-      "video",
-      res => { if(res) onCode(res.getText()); }
-    );
-    $("#camMsg").style.display = "none";
-    $("#camBtn").textContent = "Ferma fotocamera";
-  }catch(e){
-    reader = null;
-    $("#camMsg").style.display = "flex";
-    $("#camMsg").textContent = "Impossibile usare la fotocamera. Consenti l’accesso nelle impostazioni del browser.";
-    $("#camBtn").textContent = "Avvia fotocamera";
-  }
-}
-function stopScan(){
-  if(reader){ try{ reader.reset(); }catch(e){} reader = null; }
-  $("#camMsg").style.display = "flex"; $("#camMsg").textContent = "La fotocamera è spenta";
-  $("#camBtn").textContent = "Avvia fotocamera";
-}
-function onCode(c){
-  if(!validIsbn(c)) return;
-  const now = Date.now();
-  if(c === last.c && now - last.t < 3000) return;
-  last = { c, t:now };
-  addIsbn(c);
-}
-$("#camBtn").onclick = () => reader ? stopScan() : startScan();
-$("#manBtn").onclick = () => {
-  const v = (prompt("ISBN a 13 cifre") || "").replace(/\D/g, "");
-  if(!v) return;
-  validIsbn(v) ? addIsbn(v) : toast("ISBN non valido");
-};
-document.addEventListener("visibilitychange", () => { if(document.hidden) stopScan(); });
+        // Carica Libri (supporta sia dict { isbn: b } che array [ b ])
+        const savedBooks = localStorage.getItem(KEY_BOOKS) || localStorage.getItem(KEY_LEGACY_BOOKS);
+        if (savedBooks) {
+          const parsed = JSON.parse(savedBooks);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(b => { if (b && b.isbn) App.books[b.isbn] = b; });
+          } else if (typeof parsed === 'object') {
+            App.books = parsed;
+          }
+        }
 
-/* ---------- Sincronizzazione Google Sheet ---------- */
-let flushing = false;
-function queue(isbn){
-  if(!cfg.sheet) return;
-  if(!outbox.includes(isbn)) outbox.push(isbn);
-  LS.set("outbox", outbox); flush();
-}
-async function flush(){
-  if(!cfg.sheet || flushing) return;
-  flushing = true;
-  for(const isbn of [...outbox]){
-    if(!books[isbn]){ outbox = outbox.filter(x => x !== isbn); continue; }
-    try{
-      await fetch(cfg.sheet, { method:"POST", mode:"no-cors", headers:{ "Content-Type":"text/plain" },
-        body: JSON.stringify({ token:cfg.token, book:books[isbn] }) });
-      outbox = outbox.filter(x => x !== isbn);
-    }catch(e){ break; }
-  }
-  LS.set("outbox", outbox); flushing = false; render();
-}
-async function pull(){
-  if(!cfg.sheet) return toast("Inserisci l’URL dello script");
-  try{
-    const r = await fetch(cfg.sheet + "?token=" + encodeURIComponent(cfg.token));
-    const j = await r.json();
-    if(j.error) throw new Error(j.error);
-    let n = 0;
-    (j.books || []).forEach(b => { b.isbn = String(b.isbn); if(b.isbn && !books[b.isbn]){ books[b.isbn] = b; n++; } });
-    save(); render(); toast(n + " libri nuovi dal foglio");
-  }catch(e){ toast("Download non riuscito: " + e.message); }
-}
+        // Carica Outbox
+        const savedOutbox = localStorage.getItem(KEY_OUTBOX) || localStorage.getItem('outbox');
+        if (savedOutbox) {
+          App.outbox = JSON.parse(savedOutbox);
+        }
+      } catch (e) {
+        console.error("Errore caricamento stato:", e);
+      }
 
-/* ---------- Render ---------- */
-const label = { ok:"Catalogato", pending:"In attesa", notfound:"Non trovato nella NLK", error:"Errore" };
-function card(b, del){
-  const meta = [b.author, b.publisher, b.date].filter(Boolean).map(esc).join(" · ");
-  const cls = [b.kdc && "KDC " + b.kdc, b.pages && b.pages + " p."].filter(Boolean).map(esc).join(" · ");
-  return `<div class="book">${b.cover ? `<img src="${esc(b.cover)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<div class="ph"></div>`}
-    <div><div class="t">${esc(b.title || "(titolo non disponibile)")}${b.vol ? " " + esc(b.vol) : ""}</div>
-    <div class="m">${meta}</div><div class="m">${esc(b.isbn)}${cls ? " · " + cls : ""}</div>
-    <span class="tag ${b.status}">${label[b.status] || b.status}</span>${b.err ? `<div class="m">${esc(b.err)}</div>` : ""}</div>
-    ${del ? `<button class="x" data-del="${esc(b.isbn)}" aria-label="Elimina">×</button>` : ""}</div>`;
-}
-function render(){
-  const all = Object.values(books).sort((a, b) => (b.ts || 0) - (a.ts || 0));
-  $("#scanCnt").textContent = all.length + " libri in archivio" + (outbox.length ? " · " + outbox.length + " da sincronizzare" : "");
-  $("#recent").innerHTML = all.slice(0, 5).map(b => card(b, false)).join("") || `<p class="cnt">Avvia la fotocamera e inquadra il codice a barre sul retro del libro.</p>`;
-  const q = $("#q").value.trim().toLowerCase();
-  const f = q ? all.filter(b => [b.title, b.author, b.publisher, b.isbn, b.series].join(" ").toLowerCase().includes(q)) : all;
-  $("#libCnt").textContent = f.length + (q ? " risultati" : " libri");
-  $("#list").innerHTML = f.map(b => card(b, true)).join("") || `<p class="cnt">Nessun libro ancora. Vai su Scansiona.</p>`;
-  $("#outCnt").textContent = outbox.length ? outbox.length + " libri in attesa di invio al foglio condiviso." : "";
-}
-$("#q").oninput = render;
-$("#list").onclick = e => {
-  const i = e.target.dataset.del;
-  if(i && confirm("Eliminare questo libro dall’archivio locale?")){ delete books[i]; save(); render(); }
-};
+      applyConfigToInputs();
+      renderAll();
+    }
 
-/* ---------- Azioni libreria ---------- */
-$("#retryBtn").onclick = () => {
-  const todo = Object.values(books).filter(b => b.status !== "ok");
-  if(!todo.length) return toast("Nessun libro incompleto");
-  toast("Ricontrollo " + todo.length + " libri…"); todo.forEach(b => enrich(b.isbn));
-};
-function download(name, text, type){
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([text], { type }));
-  a.download = name; document.body.appendChild(a); a.click(); a.remove();
-}
-const COLS = ["isbn","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","addcode","cover","status","ts","who"];
-$("#csvBtn").onclick = () => {
-  const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
-  const rows = [COLS.join(",")].concat(Object.values(books).map(b => COLS.map(c => q(b[c])).join(",")));
-  download("libri-coreani.csv", "\uFEFF" + rows.join("\n"), "text/csv;charset=utf-8");
-};
-$("#jsonBtn").onclick = () => download("libri-coreani-backup.json", JSON.stringify(books, null, 1), "application/json");
-$("#impBtn").onclick = () => $("#impFile").click();
-$("#impFile").onchange = async e => {
-  try{
-    const j = JSON.parse(await e.target.files[0].text()); let n = 0;
-    Object.values(j).forEach(b => { if(b && b.isbn && !books[b.isbn]){ books[b.isbn] = b; n++; } });
-    save(); render(); toast(n + " libri importati");
-  }catch(err){ toast("File non valido"); }
-  e.target.value = "";
-};
+    function saveState() {
+      try {
+        localStorage.setItem(KEY_BOOKS, JSON.stringify(App.books));
+        localStorage.setItem(KEY_OUTBOX, JSON.stringify(App.outbox));
+        localStorage.setItem(KEY_CFG, JSON.stringify(App.cfg));
+      } catch (e) {
+        toast("Spazio locale pieno o errore salvataggio");
+      }
+      updateStats();
+    }
 
-/* ---------- Impostazioni e tab ---------- */
-const fields = { who:"#f-who", key:"#f-key", proxy:"#f-proxy", sheet:"#f-sheet", token:"#f-token" };
-Object.entries(fields).forEach(([k, s]) => $(s).value = cfg[k]);
-$("#saveSet").onclick = () => {
-  Object.entries(fields).forEach(([k, s]) => cfg[k] = $(s).value.trim());
-  LS.set("cfg", cfg); toast("Impostazioni salvate");
-  Object.keys(books).forEach(i => { if(!outbox.includes(i) && cfg.sheet) outbox.push(i); });
-  LS.set("outbox", outbox); flush();
-};
-$("#pullBtn").onclick = pull;
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav button, section").forEach(x => x.classList.remove("on"));
-  b.classList.add("on"); $("#s-" + b.dataset.t).classList.add("on");
-  if(b.dataset.t !== "scan") stopScan();
-});
+    function applyConfigToInputs() {
+      document.getElementById('cfgWho').value = App.cfg.who || '';
+      document.getElementById('cfgKey').value = App.cfg.key || '';
+      document.getElementById('cfgSheet').value = App.cfg.sheet || '';
+      document.getElementById('cfgToken').value = App.cfg.token || '';
+      document.getElementById('cfgProxy').value = App.cfg.proxy || '';
+      document.getElementById('cfgSound').checked = App.cfg.sound !== false;
+      document.getElementById('cfgVibrate').checked = App.cfg.vibrate !== false;
+    }
 
-try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
-window.addEventListener("online", flush);
-render(); flush();
-</script>
+    function readInputsToConfig() {
+      App.cfg.who = document.getElementById('cfgWho').value.trim() || 'Operatore';
+      App.cfg.key = document.getElementById('cfgKey').value.trim();
+      App.cfg.sheet = document.getElementById('cfgSheet').value.trim();
+      App.cfg.token = document.getElementById('cfgToken').value.trim();
+      App.cfg.proxy = document.getElementById('cfgProxy').value.trim();
+      App.cfg.sound = document.getElementById('cfgSound').checked;
+      App.cfg.vibrate = document.getElementById('cfgVibrate').checked;
+      saveState();
+    }
+
+    function updateStats() {
+      const all = Object.values(App.books);
+      const total = all.length;
+      const pendingCount = App.outbox.length;
+      const syncedCount = Math.max(0, total - pendingCount);
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statSynced').textContent = syncedCount;
+      document.getElementById('statPending').textContent = pendingCount;
+      document.getElementById('catalogCount').textContent = `Tutti i libri (${total})`;
+    }
+
+    // Interrogazione NLK API con bypass CORS trasparente via Apps Script
+    async function queryNlk(isbn) {
+      if (!App.cfg.key) return null;
+
+      // 1. Priorità: Usa Apps Script come Proxy (Bypass CORS garantito)
+      if (App.cfg.sheet && App.cfg.token) {
+        try {
+          const proxyUrl = `${App.cfg.sheet}?action=proxyNlk&token=${encodeURIComponent(App.cfg.token)}&cert_key=${encodeURIComponent(App.cfg.key)}&isbn=${encodeURIComponent(isbn)}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.docs && data.docs.length > 0) {
+              return mapNlkDoc(data.docs[0]);
+            }
+          }
+        } catch (e) {
+          console.warn("Apps Script proxy non riuscito, tento proxy alternativo/diretto:", e);
+        }
+      }
+
+      // 2. Chiamata con Proxy esterno o Diretta
+      let url = `https://www.nl.go.kr/seoji/SearchApi.do?cert_key=${encodeURIComponent(App.cfg.key)}&result_style=json&page_no=1&page_size=1&isbn=${isbn}`;
+      if (App.cfg.proxy) {
+        url = App.cfg.proxy.endsWith('=') || App.cfg.proxy.endsWith('/') ? App.cfg.proxy + encodeURIComponent(url) : `${App.cfg.proxy}${url}`;
+      }
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data && data.docs && data.docs.length > 0) {
+          return mapNlkDoc(data.docs[0]);
+        }
+      } catch (err) {
+        console.warn("Chiamata diretta/proxy fallita:", err);
+      }
+      return null;
+    }
+
+    function mapNlkDoc(d) {
+      return {
+        title: (d.TITLE || "").trim(),
+        vol: (d.VOL || "").trim(),
+        series: (d.SERIES_TITLE || "").trim(),
+        author: (d.AUTHOR || "").trim(),
+        publisher: (d.PUBLISHER || "").trim(),
+        date: (d.PUB_DATE || d.PUBLISH_PREDATE || "").trim(),
+        price: (d.PRE_PRICE || d.SET_PRICE || "").trim(),
+        kdc: (d.KDC || "").trim(),
+        ddc: (d.DDC || "").trim(),
+        pages: (d.PAGE || "").trim(),
+        size: (d.BOOK_SIZE || "").trim(),
+        subject: (d.SUBJECT || "").trim(),
+        addcode: (d.EA_ADD_CODE || "").trim(),
+        cover: (d.TITLE_URL || "").trim()
+      };
+    }
+
+    // Aggiunta Libro ed elaborazione
+    async function addScannedBook(isbn) {
+      if (App.books[isbn]) {
+        Sound.beep(440, 0.25);
+        Sound.vibrate([100, 60, 100]);
+        toast(`⚠️ Già presente: ${App.books[isbn].title || isbn}`);
+        return;
+      }
+
+      Sound.beep(880, 0.12);
+      Sound.vibrate(80);
+
+      // Crea subito record locale per non perdere la scansione
+      const newBook = {
+        isbn: isbn,
+        title: `ISBN ${isbn}`,
+        vol: '',
+        series: '',
+        author: '',
+        publisher: '',
+        date: '',
+        price: '',
+        kdc: '',
+        ddc: '',
+        pages: '',
+        size: '',
+        subject: '',
+        addcode: '',
+        cover: '',
+        notes: '',
+        status: 'pending',
+        ts: Date.now(),
+        who: App.cfg.who || 'Operatore'
+      };
+
+      App.books[isbn] = newBook;
+      enqueueSync(isbn);
+      saveState();
+      renderAll();
+      toast(`Aggiunto ${isbn}. Ricerca NLK in corso...`);
+
+      // Recupera metadati in background (senza bloccare la camera)
+      enrichBook(isbn);
+    }
+
+    async function enrichBook(isbn) {
+      const book = App.books[isbn];
+      if (!book) return;
+
+      try {
+        const doc = await queryNlk(isbn);
+        if (doc && (doc.title || doc.author)) {
+          Object.assign(book, doc, { status: 'ok', err: '' });
+          toast(`✅ ${book.title}`);
+        } else {
+          book.status = 'notfound';
+          toast(`ℹ️ NLK: Dati non trovati per ${isbn}. Puoi completarli a mano.`);
+        }
+      } catch (e) {
+        book.status = 'error';
+        book.err = /fetch/i.test(e.message) ? "Rete o CORS" : e.message;
+      }
+
+      enqueueSync(isbn);
+      saveState();
+      renderAll();
+    }
+
+    // Coda di sincronizzazione con Google Sheets
+    let isFlushing = false;
+    function enqueueSync(isbn) {
+      if (!App.outbox.includes(isbn)) {
+        App.outbox.push(isbn);
+      }
+      saveState();
+      flushSync();
+    }
+
+    async function flushSync() {
+      if (!App.cfg.sheet || isFlushing || App.outbox.length === 0) return;
+      isFlushing = true;
+
+      const queueCopy = [...App.outbox];
+      for (const isbn of queueCopy) {
+        const book = App.books[isbn];
+        if (!book) {
+          App.outbox = App.outbox.filter(x => x !== isbn);
+          continue;
+        }
+
+        try {
+          const res = await fetch(App.cfg.sheet, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'saveBook',
+              token: App.cfg.token,
+              book: book
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && (data.ok || data.success)) {
+              App.outbox = App.outbox.filter(x => x !== isbn);
+            }
+          }
+        } catch (e) {
+          console.warn("Invio al foglio in pausa (offline o errore rete):", e);
+          break; // Si riprenderà al ritorno online
+        }
+      }
+
+      isFlushing = false;
+      saveState();
+      renderAll();
+    }
+
+    // Scarica l'intero catalogo dal Google Sheet condiviso
+    async function pullFromSheet() {
+      if (!App.cfg.sheet) return toast("Inserisci l'URL di Apps Script nelle Opzioni.");
+      toast("Download dal foglio condiviso...");
+
+      try {
+        const url = `${App.cfg.sheet}?token=${encodeURIComponent(App.cfg.token)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data.error) throw new Error(data.message || data.error);
+
+        let countNew = 0;
+        (data.books || []).forEach(b => {
+          const clean = cleanIsbn(b.isbn) || b.isbn;
+          if (clean && !App.books[clean]) {
+            App.books[clean] = Object.assign(b, { isbn: clean, status: b.status || 'ok' });
+            countNew++;
+          }
+        });
+
+        saveState();
+        renderAll();
+        toast(`✅ Scaricati ${data.books?.length || 0} libri (${countNew} nuovi)!`);
+      } catch (err) {
+        toast("Errore download: " + err.message);
+      }
+    }
+
+    // Fotocamera e Scanner continuo
+    async function startScanner() {
+      if (App.isScanning) return;
+      const camDot = document.getElementById('camDot');
+      const camStatus = document.getElementById('camStatus');
+      const btnToggle = document.getElementById('btnCamToggle');
+
+      try {
+        camStatus.textContent = "Avvio camera...";
+        App.scanner = new Html5Qrcode("reader");
+
+        const config = {
+          fps: 15,
+          qrbox: { width: 260, height: 160 },
+          aspectRatio: 1.3333,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.CODE_128
+          ]
+        };
+
+        const onScanSuccess = (decoded) => {
+          const isbn = cleanIsbn(decoded);
+          if (!isbn) return;
+          const now = Date.now();
+          if (isbn === App.lastScan.code && (now - App.lastScan.time < 3500)) return;
+          App.lastScan = { code: isbn, time: now };
+          addScannedBook(isbn);
+        };
+
+        try {
+          await App.scanner.start({ facingMode: { exact: "environment" } }, config, onScanSuccess, () => {});
+        } catch (fErr) {
+          await App.scanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
+        }
+
+        App.isScanning = true;
+        camDot.classList.add('live');
+        camStatus.textContent = "Camera attiva (scansione continua)";
+        btnToggle.textContent = "Ferma Camera";
+        btnToggle.classList.add('danger');
+
+        // Check torcia
+        checkTorch();
+
+      } catch (err) {
+        camStatus.textContent = "Permesso fotocamera negato";
+        toast("Abilita l'accesso alla fotocamera nel browser.");
+      }
+    }
+
+    async function stopScanner() {
+      if (!App.scanner || !App.isScanning) return;
+      try {
+        await App.scanner.stop();
+        App.scanner.clear();
+      } catch (e) {}
+      App.isScanning = false;
+      document.getElementById('camDot').classList.remove('live');
+      document.getElementById('camStatus').textContent = "Fotocamera fermata";
+      const btn = document.getElementById('btnCamToggle');
+      btn.textContent = "Avvia Camera";
+      btn.classList.remove('danger');
+      document.getElementById('btnTorch').style.display = 'none';
+    }
+
+    async function checkTorch() {
+      const btnTorch = document.getElementById('btnTorch');
+      try {
+        const track = App.scanner.getRunningTrackCameraCapabilities();
+        if (track && track.torchFeature().isSupported()) {
+          btnTorch.style.display = 'flex';
+          btnTorch.onclick = async () => {
+            App.torchState = !App.torchState;
+            await track.torchFeature().apply(App.torchState);
+            btnTorch.style.background = App.torchState ? 'rgba(234, 179, 8, 0.9)' : 'rgba(15, 23, 42, 0.8)';
+          };
+        }
+      } catch (e) {}
+    }
+
+    // Rendering UI
+    function renderCard(b, allowDelete = false) {
+      const isPending = App.outbox.includes(b.isbn);
+      const syncBadge = isPending
+        ? `<span class="badge pending">⏳ Da sincronizzare</span>`
+        : `<span class="badge synced">✓ Sincronizzato</span>`;
+
+      let statusBadge = '';
+      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Non trovato NLK</span>`;
+      else if (b.status === 'error') statusBadge = `<span class="badge error">Errore NLK</span>`;
+
+      const kdcBadge = b.kdc ? `<span class="badge kdc">KDC ${esc(b.kdc)}</span>` : '';
+      const ddcBadge = b.ddc ? `<span class="badge">DDC ${esc(b.ddc)}</span>` : '';
+      const yearBadge = b.date ? `<span class="badge">${esc(b.date)}</span>` : '';
+
+      const coverHtml = b.cover
+        ? `<img class="book-thumb" src="${esc(b.cover)}" alt="Cover" onerror="this.outerHTML='<div class=\\'book-thumb\\'>📖</div>'"/>`
+        : `<div class="book-thumb">📖</div>`;
+
+      return `
+        <div class="book-card" id="card-${esc(b.isbn)}">
+          ${coverHtml}
+          <div class="book-body">
+            <div class="book-title">${esc(b.title || 'Senza titolo')}${b.vol ? ' ' + esc(b.vol) : ''}</div>
+            <div class="book-author">${esc(b.author || 'Autore non registrato')} ${b.publisher ? '• ' + esc(b.publisher) : ''}</div>
+            <div class="book-meta">
+              <span class="badge">ISBN ${esc(b.isbn)}</span>
+              ${yearBadge}
+              ${kdcBadge}
+              ${ddcBadge}
+              ${syncBadge}
+              ${statusBadge}
+            </div>
+            ${b.notes ? `<div style="font-size:0.75rem; color:#a5b4fc; margin-top:3px;">📝 ${esc(b.notes)}</div>` : ''}
+          </div>
+          <div class="book-actions">
+            <button class="icon-btn" style="width:30px; height:30px; font-size:0.8rem;" onclick="openEditModal('${esc(b.isbn)}')">✏️</button>
+            ${allowDelete ? `<button class="icon-btn" style="width:30px; height:30px; font-size:0.8rem; color:#f87171;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      const all = Object.values(App.books).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+      // Recent Scans (primi 6)
+      const recent = all.slice(0, 6);
+      document.getElementById('recentList').innerHTML = recent.length > 0
+        ? recent.map(b => renderCard(b, false)).join('')
+        : `<p style="text-align:center; color:var(--mute); font-size:0.85rem; padding:24px 0;">Nessun libro scansionato. Tocca 'Avvia Camera'!</p>`;
+
+      // Full Catalog
+      const q = (document.getElementById('libSearch')?.value || '').trim().toLowerCase();
+      const filtered = q
+        ? all.filter(b => [b.title, b.author, b.publisher, b.isbn, b.kdc, b.ddc, b.series, b.notes].join(' ').toLowerCase().includes(q))
+        : all;
+
+      document.getElementById('catalogList').innerHTML = filtered.length > 0
+        ? filtered.map(b => renderCard(b, true)).join('')
+        : `<p style="text-align:center; color:var(--mute); font-size:0.85rem; padding:30px 0;">Nessun libro trovato.</p>`;
+
+      updateStats();
+    }
+
+    // Modal Edit / Manual Add
+    let editingIsbn = null;
+    function openModal(isbn = null) {
+      editingIsbn = isbn;
+      const modal = document.getElementById('editModal');
+      const title = document.getElementById('modalTitle');
+      const inputIsbn = document.getElementById('mIsbn');
+
+      if (isbn && App.books[isbn]) {
+        const b = App.books[isbn];
+        title.textContent = "Modifica Libro";
+        inputIsbn.value = b.isbn;
+        inputIsbn.disabled = true;
+        document.getElementById('mTitle').value = b.title || '';
+        document.getElementById('mVol').value = b.vol || '';
+        document.getElementById('mSeries').value = b.series || '';
+        document.getElementById('mAuthor').value = b.author || '';
+        document.getElementById('mPublisher').value = b.publisher || '';
+        document.getElementById('mKdc').value = b.kdc || '';
+        document.getElementById('mDdc').value = b.ddc || '';
+        document.getElementById('mDate').value = b.date || '';
+        document.getElementById('mPages').value = b.pages || '';
+        document.getElementById('mNotes').value = b.notes || '';
+      } else {
+        title.textContent = "Aggiungi Libro";
+        inputIsbn.value = '';
+        inputIsbn.disabled = false;
+        document.getElementById('mTitle').value = '';
+        document.getElementById('mVol').value = '';
+        document.getElementById('mSeries').value = '';
+        document.getElementById('mAuthor').value = '';
+        document.getElementById('mPublisher').value = '';
+        document.getElementById('mKdc').value = '';
+        document.getElementById('mDdc').value = '';
+        document.getElementById('mDate').value = '';
+        document.getElementById('mPages').value = '';
+        document.getElementById('mNotes').value = '';
+      }
+      modal.classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('open');
+      editingIsbn = null;
+    }
+
+    window.openEditModal = (isbn) => openModal(isbn);
+    window.closeModal = closeModal;
+
+    window.deleteBook = (isbn) => {
+      if (confirm(`Rimuovere il libro ${isbn} da questo archivio locale?`)) {
+        delete App.books[isbn];
+        App.outbox = App.outbox.filter(x => x !== isbn);
+        saveState();
+        renderAll();
+        toast("Libro rimosso.");
+      }
+    };
+
+    // Esportazione CSV UTF-8 con BOM per Excel
+    const COLS_CSV = ["isbn","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","notes","who","status"];
+    function exportCsv() {
+      const all = Object.values(App.books);
+      if (all.length === 0) return toast("Nessun libro da esportare.");
+
+      const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
+      const rows = [COLS_CSV.join(",")].concat(all.map(b => COLS_CSV.map(c => q(b[c])).join(",")));
+      const blob = new Blob(["\uFEFF" + rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `catalogo_libri_coreani_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("CSV esportato!");
+    }
+
+    // Setup & Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+
+      // Tab Navigation
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('main > section').forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          const target = btn.dataset.tab;
+          document.getElementById(target).classList.add('active');
+          if (target !== 'tab-scan') stopScanner();
+          if (target === 'tab-lib') renderAll();
+        });
+      });
+
+      // Scanner Toggle
+      document.getElementById('btnCamToggle').onclick = () => App.isScanning ? stopScanner() : startScanner();
+
+      // Top Actions
+      document.getElementById('btnManualAdd').onclick = () => openModal();
+      document.getElementById('btnSyncNow').onclick = () => {
+        if (!App.cfg.sheet) return toast("Configura l'URL di Apps Script nelle Opzioni.");
+        Object.keys(App.books).forEach(i => { if (!App.outbox.includes(i)) App.outbox.push(i); });
+        saveState();
+        flushSync();
+        toast("Sincronizzazione in corso...");
+      };
+
+      // Ricontrolla incompleti
+      document.getElementById('btnRetryPending').onclick = () => {
+        const notFound = Object.values(App.books).filter(b => b.status !== 'ok');
+        if (!notFound.length) return toast("Nessun libro da ricontrollare.");
+        toast(`Ricontrollo ${notFound.length} libri su NLK...`);
+        notFound.forEach(b => enrichBook(b.isbn));
+      };
+
+      // Search & CSV & Pull
+      document.getElementById('libSearch').oninput = renderAll;
+      document.getElementById('btnExportCsv').onclick = exportCsv;
+      document.getElementById('btnPullSheet').onclick = pullFromSheet;
+
+      // Settings Save & Test
+      document.getElementById('btnSaveConfig').onclick = () => {
+        readInputsToConfig();
+        toast("Impostazioni salvate!");
+        flushSync();
+      };
+
+      document.getElementById('btnTestSheet').onclick = async () => {
+        readInputsToConfig();
+        if (!App.cfg.sheet) return toast("Inserisci l'URL di Apps Script.");
+        toast("Verifico connessione...");
+        try {
+          const res = await fetch(`${App.cfg.sheet}?action=ping&token=${encodeURIComponent(App.cfg.token)}`);
+          const data = await res.json();
+          if (data && (data.ok || data.success)) toast("✅ Connessione riuscita!");
+          else toast("❌ Token non valido o errore Apps Script.");
+        } catch (e) {
+          toast("❌ Errore connessione: " + e.message);
+        }
+      };
+
+      // Modal Save & Lookup
+      document.getElementById('btnModalSave').onclick = () => {
+        const rawIsbn = document.getElementById('mIsbn').value.trim();
+        const isbn = cleanIsbn(rawIsbn) || rawIsbn;
+        if (!isbn) return alert("Inserisci un ISBN valido.");
+
+        let book = App.books[isbn] || {
+          isbn: isbn,
+          who: App.cfg.who || 'Operatore',
+          ts: Date.now(),
+          status: 'ok'
+        };
+
+        book.title = document.getElementById('mTitle').value.trim() || `ISBN ${isbn}`;
+        book.vol = document.getElementById('mVol').value.trim();
+        book.series = document.getElementById('mSeries').value.trim();
+        book.author = document.getElementById('mAuthor').value.trim();
+        book.publisher = document.getElementById('mPublisher').value.trim();
+        book.kdc = document.getElementById('mKdc').value.trim();
+        book.ddc = document.getElementById('mDdc').value.trim();
+        book.date = document.getElementById('mDate').value.trim();
+        book.pages = document.getElementById('mPages').value.trim();
+        book.notes = document.getElementById('mNotes').value.trim();
+
+        App.books[isbn] = book;
+        enqueueSync(isbn);
+        saveState();
+        renderAll();
+        closeModal();
+        toast("Scheda salvata!");
+      };
+
+      document.getElementById('btnModalLookupNlk').onclick = async () => {
+        const raw = document.getElementById('mIsbn').value.trim();
+        const isbn = cleanIsbn(raw) || raw;
+        if (!isbn) return alert("Inserisci prima l'ISBN.");
+        toast("Ricerca NLK...");
+        const doc = await queryNlk(isbn);
+        if (doc) {
+          document.getElementById('mTitle').value = doc.title || '';
+          document.getElementById('mVol').value = doc.vol || '';
+          document.getElementById('mSeries').value = doc.series || '';
+          document.getElementById('mAuthor').value = doc.author || '';
+          document.getElementById('mPublisher').value = doc.publisher || '';
+          document.getElementById('mKdc').value = doc.kdc || '';
+          document.getElementById('mDdc').value = doc.ddc || '';
+          document.getElementById('mDate').value = doc.date || '';
+          document.getElementById('mPages').value = doc.pages || '';
+          toast("Dati NLK trovati e inseriti!");
+        } else {
+          toast("Nessun dato trovato su NLK.");
+        }
+      };
+
+      // Backup JSON
+      document.getElementById('btnBackupJson').onclick = () => {
+        const str = JSON.stringify(App.books, null, 2);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([str], { type: 'application/json' }));
+        a.download = `backup_libri_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      };
+
+      document.getElementById('importJsonInput').onchange = async (e) => {
+        try {
+          const file = e.target.files[0];
+          if (!file) return;
+          const text = await file.text();
+          const j = JSON.parse(text);
+          let n = 0;
+          const items = Array.isArray(j) ? j : Object.values(j);
+          items.forEach(b => {
+            if (b && b.isbn && !App.books[b.isbn]) {
+              App.books[b.isbn] = b;
+              n++;
+            }
+          });
+          saveState();
+          renderAll();
+          toast(`Importati ${n} libri!`);
+        } catch (err) {
+          toast("File JSON non valido.");
+        }
+        e.target.value = '';
+      };
+
+      document.getElementById('btnClearData').onclick = () => {
+        if (confirm("Vuoi cancellare i libri memorizzati in questa pagina locale? (Il foglio Google non verrà modificato)")) {
+          App.books = {};
+          App.outbox = [];
+          saveState();
+          renderAll();
+          toast("Dati locali cancellati.");
+        }
+      };
+
+      // Gestione offline/online
+      window.addEventListener('online', flushSync);
+      document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
+    });
+  </script>
 </body>
 </html>
