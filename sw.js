@@ -1,5 +1,5 @@
 // Service Worker per Korean Book Scanner (PWA)
-const CACHE_NAME = 'korean-book-scanner-v2';
+const CACHE_NAME = 'korean-book-scanner-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
