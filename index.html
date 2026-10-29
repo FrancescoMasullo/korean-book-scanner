@@ -25,18 +25,38 @@
 
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --card-border: #334155;
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-card: #151d30;
+      --surface-elevated: #1e293b;
+      --surface-hover: #222d42;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-strong: rgba(255, 255, 255, 0.16);
+      --card-border-focus: #38bdf8;
       --text: #f8fafc;
       --mute: #94a3b8;
+      --subtle: #64748b;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.35);
       --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
       --ok: #10b981;
+      --ok-bg: rgba(16, 185, 129, 0.12);
       --warn: #f59e0b;
+      --warn-bg: rgba(245, 158, 11, 0.12);
       --err: #ef4444;
-      --kdc-color: #a78bfa;
+      --err-bg: rgba(239, 68, 68, 0.12);
+      --kdc-color: #c084fc;
+      --gold: #f59e0b;
+      --gold-bg: rgba(245, 158, 11, 0.14);
+      --gold-border: rgba(245, 158, 11, 0.32);
+      --scrollbar-thumb: rgba(148, 163, 184, 0.25);
+      --scrollbar-track: transparent;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
     }
 
     * {
@@ -44,25 +64,45 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+      scrollbar-width: thin;
     }
 
     body {
-      font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      line-height: 1.5;
+      text-align: start;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background mesh */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 60vh;
+      background: radial-gradient(ellipse at 50% 10%, rgba(37, 99, 235, 0.14) 0%, rgba(56, 189, 248, 0.04) 50%, transparent 75%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     header {
-      background: rgba(30, 41, 59, 0.96);
-      backdrop-filter: blur(10px);
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       position: sticky;
       top: 0;
       z-index: 50;
-      padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 12px 16px;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 18px 12px 18px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       align-items: center;
@@ -72,22 +112,37 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .brand-icon {
-      font-size: 1.5rem;
+    .brand-logo-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #1e3a8a, #0284c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      border: 1px solid rgba(255,255,255,0.18);
     }
 
     .brand-title {
       font-weight: 700;
       font-size: 1.05rem;
+      letter-spacing: -0.02em;
       line-height: 1.2;
+      color: #fff;
     }
 
     .brand-sub {
       font-size: 0.72rem;
-      color: var(--mute);
+      color: var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .header-btns {
@@ -96,52 +151,68 @@
     }
 
     .icon-btn {
-      background: #334155;
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--surface-card);
+      border: 1px solid var(--card-border);
       color: var(--text);
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.05rem;
       cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .icon-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--card-border-strong);
+      transform: translateY(-1px);
     }
 
     .icon-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.92);
     }
 
-    /* Container Views */
     main {
       flex: 1;
-      padding: 14px;
+      padding: 16px;
       max-width: 680px;
       margin: 0 auto;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     section {
       display: none;
+      animation: fadeIn 0.2s ease-out;
     }
 
     section.active {
       display: block;
     }
 
-    /* Navigation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bottom Navigation */
     nav.bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(15, 23, 42, 0.97);
-      backdrop-filter: blur(14px);
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid var(--card-border);
       display: flex;
       justify-content: space-around;
-      padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px)) 0;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)) 12px;
       z-index: 100;
       max-width: 680px;
       margin: 0 auto;
@@ -151,52 +222,179 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       color: var(--mute);
       background: none;
       border: none;
       cursor: pointer;
       flex: 1;
-      padding: 6px 2px;
-      font-size: 0.75rem;
+      padding: 6px 4px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.92);
     }
 
     .nav-btn.active {
-      color: var(--accent);
-      font-weight: 600;
+      color: #fff;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.08);
     }
 
-    .nav-btn span.icon {
-      font-size: 1.25rem;
+    .nav-btn.active .nav-icon-wrap {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(56, 189, 248, 0.35);
     }
 
-    /* Scanner View */
+    .nav-icon-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      transition: all 0.2s ease;
+    }
+
+    /* Scanner Viewport */
     .scanner-box {
-      background: var(--card);
-      border-radius: 16px;
+      background: var(--surface-card);
+      border-radius: var(--radius-lg);
       border: 1px solid var(--card-border);
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
 
     #reader {
       width: 100%;
-      min-height: 270px;
-      background: #000;
+      min-height: 280px;
+      background: #020617;
+      position: relative;
     }
 
     #reader video {
       object-fit: cover !important;
-      border-radius: 16px;
+      border-radius: var(--radius-lg);
+    }
+
+    /* Reticle Corners */
+    .viewfinder-reticle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 50px;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+    }
+
+    .scanner-box.scanning .viewfinder-reticle {
+      display: block;
+    }
+
+    .reticle-corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 3px solid #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+    .reticle-tl { top: 22px; left: 22px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+    .reticle-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
+    .reticle-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+    .reticle-br { bottom: 22px; right: 22px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+    /* Scanning Laser Line */
+    .scan-laser {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8 25%, #38bdf8 75%, transparent);
+      box-shadow: 0 0 14px 2px #38bdf8;
+      z-index: 12;
+      pointer-events: none;
+      display: none;
+    }
+
+    .scanner-box.scanning .scan-laser {
+      display: block;
+      animation: scanLaser 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 15%; opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { top: 80%; opacity: 0.3; }
+    }
+
+    /* Floating Viewport Controls */
+    .viewport-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .viewport-status-badge {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.74rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .torch-btn {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .torch-btn.active {
+      background: #eab308;
+      color: #000;
+      box-shadow: 0 0 16px rgba(234, 179, 8, 0.7);
     }
 
     .scanner-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: #1e293b;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--card-border);
     }
 
     .status-indicator {
@@ -211,36 +409,183 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--mute);
+      background: var(--subtle);
+      transition: all 0.2s ease;
     }
 
     .dot.live {
       background: var(--ok);
-      box-shadow: 0 0 8px var(--ok);
+      box-shadow: 0 0 10px var(--ok);
       animation: pulse 1.8s infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
     }
 
-    .torch-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-      background: rgba(15, 23, 42, 0.8);
+    /* Stats Strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-pill {
+      background: var(--surface-card);
       border: 1px solid var(--card-border);
+      padding: 11px 12px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .stat-pill:hover {
+      border-color: var(--card-border-strong);
+      transform: translateY(-1px);
+    }
+
+    .stat-num {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--mute);
+      margin-top: 2px;
+      text-wrap: balance;
+    }
+
+    /* Live Shelf / Ultima Scansione Box */
+    .live-shelf-card {
+      background: linear-gradient(135deg, rgba(21, 29, 48, 0.95), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .live-shelf-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .live-shelf-empty {
+      color: var(--mute);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 8px 0;
+      line-height: 1.4;
+    }
+
+    /* Filter Bar & Pills */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 10px 2px;
+      margin-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+
+    .filter-pill {
+      background: var(--surface-card);
+      border: 1px solid var(--card-border);
+      color: var(--mute);
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .filter-pill:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .filter-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+
+    /* Search Bar with Clear */
+    .search-box-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 38px 12px 40px;
+      background: var(--surface-card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--surface);
+    }
+
+    .search-icon-left {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--subtle);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #334155;
+      color: #cbd5e1;
+      border: none;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      width: 38px;
-      height: 38px;
+      font-size: 0.75rem;
+      cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
     }
 
     /* Buttons & Inputs */
@@ -249,14 +594,20 @@
       color: #fff;
       border: none;
       padding: 9px 15px;
-      border-radius: 9px;
+      border-radius: 10px;
       font-weight: 600;
       font-size: 0.88rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s, transform 0.1s;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
     }
 
     .btn:active {
@@ -264,35 +615,46 @@
     }
 
     .btn.sec {
-      background: #334155;
+      background: var(--surface-card);
       color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn.sec:hover {
+      background: var(--surface-hover);
+      border-color: var(--card-border-strong);
     }
 
     .btn.danger {
       background: var(--err);
     }
 
-    .btn.sm {
-      padding: 5px 9px;
-      font-size: 0.76rem;
-      border-radius: 7px;
+    .btn.danger:hover {
+      background: #dc2626;
     }
 
-    input, textarea {
+    .btn.sm {
+      padding: 6px 11px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+    }
+
+    input, textarea, select {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--card-border);
       border-radius: 9px;
-      background: var(--card);
+      background: var(--surface);
       color: var(--text);
       font-family: inherit;
       font-size: 0.88rem;
       outline: none;
       margin-top: 4px;
+      transition: border-color 0.15s ease;
     }
 
-    input:focus, textarea:focus {
-      border-color: var(--primary);
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
     }
 
     label {
@@ -309,88 +671,90 @@
       line-height: 1.35;
     }
 
-    /* Stats Strip */
-    .stats-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .stat-pill {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      padding: 8px 10px;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .stat-num {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .stat-label {
-      font-size: 0.7rem;
-      color: var(--mute);
-      margin-top: 1px;
-    }
-
     /* Book Cards */
     .section-title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--mute);
     }
 
     .book-card {
-      background: var(--card);
+      background: var(--surface-card);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 11px;
-      margin-bottom: 9px;
+      border-radius: var(--radius-md);
+      padding: 13px;
+      margin-bottom: 11px;
       display: flex;
-      gap: 11px;
-      align-items: flex-start;
+      gap: 13px;
+      align-items: stretch;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
     }
 
-    .book-thumb {
-      width: 54px;
-      height: 76px;
-      border-radius: 6px;
-      background: #0f172a;
-      object-fit: cover;
+    .book-card:hover {
+      border-color: var(--card-border-strong);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+
+    .book-card-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
       flex-shrink: 0;
+    }
+
+    .book-thumb-wrap {
+      width: 58px;
+      height: 82px;
+      border-radius: 8px;
+      background: #0f172a;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--mute);
-      font-size: 1.4rem;
-      border: 1px solid #334155;
+      color: var(--subtle);
+      font-size: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .book-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .book-body {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .book-title {
       font-weight: 700;
-      font-size: 0.92rem;
-      line-height: 1.25;
+      font-size: 0.95rem;
+      line-height: 1.35;
       margin-bottom: 3px;
-      word-break: keep-all;
+      color: #fff;
+      text-wrap: balance;
+      overflow-wrap: break-word;
     }
 
     .book-author {
       font-size: 0.78rem;
       color: #cbd5e1;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      line-height: 1.4;
     }
 
     .book-meta {
@@ -398,45 +762,67 @@
       flex-wrap: wrap;
       gap: 5px;
       align-items: center;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
     .badge {
-      font-size: 0.68rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #0f172a;
+      font-size: 0.69rem;
+      padding: 2.5px 7px;
+      border-radius: 5px;
+      background: rgba(15, 23, 42, 0.7);
       border: 1px solid var(--card-border);
-      font-family: monospace;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #cbd5e1;
+    }
+
+    .badge.prefix-tag {
+      background: rgba(2, 132, 199, 0.14);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.3);
+      font-weight: 600;
     }
 
     .badge.kdc {
       color: var(--kdc-color);
-      border-color: #5b21b6;
+      border-color: rgba(192, 132, 252, 0.3);
+      background: rgba(147, 51, 234, 0.12);
+      font-weight: 600;
     }
 
     .badge.synced {
       color: var(--ok);
-      border-color: #065f46;
+      border-color: rgba(16, 185, 129, 0.3);
+      background: var(--ok-bg);
+      font-weight: 500;
     }
 
     .badge.pending {
       color: var(--warn);
-      border-color: #92400e;
+      border-color: rgba(245, 158, 11, 0.3);
+      background: var(--warn-bg);
+      font-weight: 500;
     }
 
     .badge.notfound {
       color: #fb923c;
+      border-color: rgba(251, 146, 60, 0.3);
+      background: rgba(251, 146, 60, 0.12);
     }
 
     .badge.error {
       color: var(--err);
+      border-color: rgba(239, 68, 68, 0.3);
+      background: var(--err-bg);
     }
 
-    .book-actions {
+    .book-card-actions {
       display: flex;
-      flex-direction: column;
-      gap: 5px;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
     }
 
     /* Toast Notification */
@@ -444,18 +830,19 @@
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
-      bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(84px + env(safe-area-inset-bottom, 0px));
       background: #020617;
       color: #f8fafc;
-      padding: 9px 16px;
+      padding: 10px 18px;
       border-radius: 99px;
-      font-size: 0.82rem;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      font-size: 0.84rem;
+      font-weight: 500;
+      border: 1px solid var(--card-border-strong);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 150;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
+      transition: opacity 0.2s ease, transform 0.2s ease;
       max-width: 90%;
       text-align: center;
       white-space: nowrap;
@@ -468,17 +855,19 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
-    /* Modal Backdrop */
+    /* Modal Backdrop & Dialog Container */
     .modal-wrap {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 200;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
+      overscroll-behavior: contain;
     }
 
     .modal-wrap.open {
@@ -486,85 +875,127 @@
     }
 
     .modal-box {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
+      background: var(--surface);
+      border: 1px solid var(--card-border-strong);
+      border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       max-height: 88vh;
       overflow-y: auto;
-      padding: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      overscroll-behavior: contain;
     }
 
     .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--card-border);
     }
 
     .modal-title {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
+      color: #fff;
     }
 
     .settings-card {
-      background: var(--card);
+      background: var(--surface-card);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: var(--radius-md);
+      padding: 16px;
       margin-bottom: 14px;
     }
 
     .settings-title {
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
-    /* Sticker Spine Badge & Preview */
+    /* Modern Spine Badge (청구기호) */
     .spine-badge {
       background: #ffffff;
       color: #0f172a;
-      border: 1px solid #cbd5e1;
+      border: 1.5px solid #0f172a;
       border-radius: 6px;
       padding: 4px 6px;
       font-family: 'Pretendard', sans-serif;
       text-align: center;
       line-height: 1.25;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.22);
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-width: 62px;
+      min-width: 66px;
       flex-shrink: 0;
       cursor: pointer;
       user-select: none;
-      transition: transform 0.1s;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      position: relative;
     }
-    .spine-badge:active { transform: scale(0.96); }
-    .spine-badge .sp-pfx { font-size: 0.65rem; font-weight: 700; color: #0284c7; }
-    .spine-badge .sp-kdc { font-size: 0.84rem; font-weight: 800; color: #0f172a; letter-spacing: -0.2px; }
-    .spine-badge .sp-aut { font-size: 0.74rem; font-weight: 700; color: #047857; letter-spacing: 0.2px; }
-    .spine-badge .sp-yr  { font-size: 0.62rem; color: #64748b; font-weight: 600; }
+
+    .spine-badge:hover {
+      transform: scale(1.04);
+      box-shadow: 0 5px 14px rgba(0,0,0,0.3);
+    }
+
+    .spine-badge:active {
+      transform: scale(0.96);
+    }
+
+    .spine-badge .sp-pfx {
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: #0284c7;
+      border-bottom: 1px dashed #cbd5e1;
+      width: 100%;
+      padding-bottom: 1px;
+      margin-bottom: 1px;
+    }
+    .spine-badge .sp-kdc {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+    }
+    .spine-badge .sp-aut {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #047857;
+      letter-spacing: 0.2px;
+    }
+    .spine-badge .sp-yr {
+      font-size: 0.63rem;
+      color: #475569;
+      font-weight: 600;
+      border-top: 1px dashed #cbd5e1;
+      width: 100%;
+      padding-top: 1px;
+      margin-top: 1px;
+    }
 
     /* Big Print Sticker Modal */
     .print-sticker-box {
-      width: 150px;
+      width: 155px;
       background: #ffffff;
-      border: 2px solid #0f172a;
+      border: 2.5px solid #0f172a;
       border-radius: 8px;
-      padding: 16px 10px;
-      margin: 16px auto;
+      padding: 16px 12px;
+      margin: 18px auto;
       text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+      line-height: 1.3;
     }
-    .print-sticker-box .sp-pfx { font-size: 1.05rem; font-weight: 700; color: #0284c7; }
-    .print-sticker-box .sp-kdc { font-size: 1.45rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
-    .print-sticker-box .sp-aut { font-size: 1.15rem; font-weight: 700; color: #047857; }
-    .print-sticker-box .sp-yr  { font-size: 0.95rem; font-weight: 600; color: #64748b; margin-top: 4px; }
+    .print-sticker-box .sp-pfx { font-size: 1.1rem; font-weight: 700; color: #0284c7; margin-bottom: 4px; }
+    .print-sticker-box .sp-kdc { font-size: 1.55rem; font-weight: 800; color: #0f172a; margin: 4px 0; letter-spacing: -0.5px; }
+    .print-sticker-box .sp-aut { font-size: 1.25rem; font-weight: 700; color: #047857; margin: 4px 0; }
+    .print-sticker-box .sp-yr  { font-size: 1.0rem; font-weight: 600; color: #475569; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -572,10 +1003,10 @@
   <!-- Top Header -->
   <header>
     <div class="brand">
-      <span class="brand-icon">📚</span>
+      <div class="brand-logo-badge">📚</div>
       <div>
         <div class="brand-title">Korean Book Scanner</div>
-        <div class="brand-sub">Catalogo & Etichette KDC</div>
+        <div class="brand-sub"><span>🏷️</span> Catalogo & Etichette KDC</div>
       </div>
     </div>
     <div class="header-btns">
@@ -589,18 +1020,6 @@
 
     <!-- TAB 1: SCANNER -->
     <section id="tab-scan" class="active">
-      <div class="scanner-box">
-        <div id="reader"></div>
-        <button id="btnTorch" class="torch-btn" title="Torcia/Flash">🔦</button>
-        <div class="scanner-footer">
-          <div class="status-indicator">
-            <span class="dot" id="camDot"></span>
-            <span id="camStatus">Fotocamera non attiva</span>
-          </div>
-          <button class="btn sm" id="btnCamToggle">Avvia Camera</button>
-        </div>
-      </div>
-
       <!-- Quick Stats -->
       <div class="stats-strip">
         <div class="stat-pill">
@@ -613,25 +1032,86 @@
         </div>
         <div class="stat-pill">
           <div class="stat-num" id="statPending" style="color:var(--warn)">0</div>
-          <div class="stat-label">Da Sincronizzare</div>
+          <div class="stat-label">In Sospeso</div>
         </div>
       </div>
 
-      <!-- Ultime Scansioni -->
+      <!-- Scanner Box with Reticle & Laser -->
+      <div class="scanner-box" id="scannerContainer">
+        <!-- Floating overlay controls -->
+        <div class="viewport-overlay">
+          <div class="viewport-status-badge">
+            <span class="dot" id="camDot"></span>
+            <span id="camStatus">Pronto</span>
+          </div>
+          <button id="btnTorch" class="torch-btn" title="Torcia/Flash">🔦</button>
+        </div>
+
+        <!-- Camera Render Target -->
+        <div id="reader"></div>
+
+        <!-- High-tech Viewfinder Targeting Brackets -->
+        <div class="viewfinder-reticle">
+          <div class="reticle-corner reticle-tl"></div>
+          <div class="reticle-corner reticle-tr"></div>
+          <div class="reticle-corner reticle-bl"></div>
+          <div class="reticle-corner reticle-br"></div>
+        </div>
+        <div class="scan-laser"></div>
+
+        <div class="scanner-footer">
+          <span style="font-size:0.8rem; color:var(--mute);">Inquadra il codice a barre ISBN</span>
+          <button class="btn sm" id="btnCamToggle">Avvia Camera</button>
+        </div>
+      </div>
+
+      <!-- Live Shelf: Ultimo Libro Scansionato -->
+      <div class="live-shelf-card" id="liveShelfCard">
+        <div class="live-shelf-header">
+          <span>📖 Ultimo Libro Scansionato</span>
+          <span id="liveShelfBadge" style="display:none;" class="badge synced">Registrato</span>
+        </div>
+        <div id="liveShelfContent">
+          <div class="live-shelf-empty">
+            Nessuna scansione recente nella sessione.<br>
+            Tocca <strong>"Avvia Camera"</strong> e inquadra il codice ISBN (978...).
+          </div>
+        </div>
+      </div>
+
+      <!-- Ultime Scansioni Sessione -->
       <div class="section-title-row">
         <span>Ultime Scansioni</span>
-        <button class="btn sm sec" id="btnRetryPending">Aggiorna Dati Libri</button>
+        <button class="btn sm sec" id="btnRetryPending">Aggiorna Incompleti</button>
       </div>
       <div id="recentList"></div>
     </section>
 
     <!-- TAB 2: CATALOGO COMPLETO -->
     <section id="tab-lib">
-      <input type="search" id="libSearch" placeholder="Cerca per titolo, autore, ISBN, serie, KDC...">
-      <div style="display: flex; gap: 8px; margin: 10px 0;">
-        <button class="btn sm sec" id="btnExportCsv">📊 Esporta CSV (Excel)</button>
-        <button class="btn sm sec" id="btnPullSheet">⬇️ Scarica dal foglio</button>
+      <!-- Search Input with Clear Button -->
+      <div class="search-box-wrap">
+        <span class="search-icon-left">🔍</span>
+        <input type="search" id="libSearch" class="search-input" placeholder="Cerca per titolo, autore, KDC, ISBN, serie...">
+        <button type="button" class="search-clear-btn" id="btnSearchClear" title="Cancella ricerca">✕</button>
       </div>
+
+      <!-- Segmented Category / Status Filter Bar -->
+      <div class="filter-bar" id="catalogFilters">
+        <button class="filter-pill active" data-filter="all">Tutti (<span id="pillCountAll">0</span>)</button>
+        <button class="filter-pill" data-filter="kdc">🏷️ Con KDC</button>
+        <button class="filter-pill" data-filter="kids">👶 Bambini (아동/유아)</button>
+        <button class="filter-pill" data-filter="lang">🇰🇷 Studio Lingua</button>
+        <button class="filter-pill" data-filter="pending">⏳ In attesa sync</button>
+        <button class="filter-pill" data-filter="notfound">⚠️ Da completare</button>
+      </div>
+
+      <!-- Action Row -->
+      <div style="display: flex; gap: 8px; margin: 10px 0 14px 0;">
+        <button class="btn sm sec" id="btnExportCsv" style="flex:1; justify-content:center;">📊 Esporta CSV (Excel)</button>
+        <button class="btn sm sec" id="btnPullSheet" style="flex:1; justify-content:center;">⬇️ Scarica dal foglio</button>
+      </div>
+
       <div class="section-title-row">
         <span id="catalogCount">Tutti i libri (0)</span>
       </div>
@@ -731,15 +1211,15 @@
   <!-- Bottom Nav -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="tab-scan">
-      <span class="icon">📷</span>
+      <div class="nav-icon-wrap">📷</div>
       <span>Scansiona</span>
     </button>
     <button class="nav-btn" data-tab="tab-lib">
-      <span class="icon">📚</span>
+      <div class="nav-icon-wrap">📚</div>
       <span>Catalogo</span>
     </button>
     <button class="nav-btn" data-tab="tab-set">
-      <span class="icon">⚙️</span>
+      <div class="nav-icon-wrap">⚙️</div>
       <span>Opzioni</span>
     </button>
   </nav>
@@ -920,6 +1400,8 @@
       scanner: null,
       isScanning: false,
       lastScan: { code: '', time: 0 },
+      lastScannedIsbn: null,
+      activeFilter: 'all',
       torchState: false
     };
 
@@ -1181,12 +1663,15 @@
       };
 
       App.books[isbn] = newBook;
+      App.lastScannedIsbn = isbn;
       saveState();
       renderAll();
+      updateLiveShelf(isbn);
       toast(`Scansionato ${isbn}. Ricerca metadati...`);
 
       // 1. Cerca i metadati (Kakao / Data4Library)
       await enrichBook(isbn);
+      updateLiveShelf(isbn);
 
       // 2. Invia la scheda COMPLETA al Google Sheet
       enqueueSync(isbn);
@@ -1359,6 +1844,7 @@
         }
 
         App.isScanning = true;
+        document.getElementById('scannerContainer')?.classList.add('scanning');
         camDot.classList.add('live');
         camStatus.textContent = "Camera attiva (scansione continua)";
         btnToggle.textContent = "Ferma Camera";
@@ -1380,6 +1866,7 @@
         App.scanner.clear();
       } catch (e) {}
       App.isScanning = false;
+      document.getElementById('scannerContainer')?.classList.remove('scanning');
       document.getElementById('camDot').classList.remove('live');
       document.getElementById('camStatus').textContent = "Fotocamera fermata";
       const btn = document.getElementById('btnCamToggle');
@@ -1523,55 +2010,71 @@
       }
     };
 
+    // Live Shelf (Ultimo Libro Scansionato)
+    function updateLiveShelf(isbn) {
+      const card = document.getElementById('liveShelfContent');
+      const badge = document.getElementById('liveShelfBadge');
+      if (!card) return;
+      const b = App.books[isbn];
+      if (!b) return;
+
+      if (badge) badge.style.display = 'inline-flex';
+      card.innerHTML = renderCard(b, false);
+    }
+
     // Rendering UI
     function renderCard(b, allowDelete = false) {
       const isPending = App.outbox.includes(b.isbn);
       const syncBadge = isPending
-        ? `<span class="badge pending">⏳ Da sincronizzare</span>`
+        ? `<span class="badge pending">⏳ In attesa sync</span>`
         : `<span class="badge synced">✓ Sincronizzato</span>`;
 
       let statusBadge = '';
-      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Non trovato</span>`;
+      if (b.status === 'notfound') statusBadge = `<span class="badge notfound">Da completare</span>`;
       else if (b.status === 'error') statusBadge = `<span class="badge error">Errore</span>`;
 
+      // Calcola etichetta spina (KDC + Lee Jae-chul)
+      const spine = KdcEngine.generateSpineLabel(b);
+      b.call_number = spine.fullCallNumber;
+      b.author_code = spine.authorCode;
+
+      const prefixBadge = spine.prefix ? `<span class="badge prefix-tag">${esc(spine.prefix)}</span>` : '';
       const kdcBadge = b.kdc ? `<span class="badge kdc">KDC ${esc(b.kdc)}</span>` : '';
       const yearBadge = b.date ? `<span class="badge">${esc(b.date)}</span>` : '';
 
       const coverHtml = b.cover
-        ? `<img class="book-thumb" src="${esc(b.cover)}" alt="Cover" onerror="this.outerHTML='<div class=\\'book-thumb\\'>📖</div>'"/>`
-        : `<div class="book-thumb">📖</div>`;
-
-      // Calcola etichetta spina
-      const spine = KdcEngine.generateSpineLabel(b);
-      // Salva nella memoria del libro
-      b.call_number = spine.fullCallNumber;
-      b.author_code = spine.authorCode;
+        ? `<div class="book-thumb-wrap"><img src="${esc(b.cover)}" alt="Cover" loading="lazy" onerror="this.outerHTML='<div class=\\'book-thumb-wrap\\'>📖</div>'"/></div>`
+        : `<div class="book-thumb-wrap">📖</div>`;
 
       return `
         <div class="book-card" id="card-${esc(b.isbn)}">
-          ${coverHtml}
-          <div class="book-body">
-            <div class="book-title">${esc(b.title || 'Senza titolo')}${b.vol ? ' ' + esc(b.vol) : ''}</div>
-            <div class="book-author">${esc(b.author || 'Autore non registrato')} ${b.publisher ? '• ' + esc(b.publisher) : ''}</div>
-            <div class="book-meta">
-              <span class="badge">ISBN ${esc(b.isbn)}</span>
-              ${yearBadge}
-              ${kdcBadge}
-              ${syncBadge}
-              ${statusBadge}
-            </div>
-            ${b.notes ? `<div style="font-size:0.75rem; color:#a5b4fc; margin-top:3px;">📝 ${esc(b.notes)}</div>` : ''}
-          </div>
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <div class="book-card-left">
+            ${coverHtml}
             <div class="spine-badge" title="Tocca per ingrandire o stampare etichetta" onclick="openLabelModal('${esc(b.isbn)}')">
               ${spine.prefix ? `<span class="sp-pfx">${esc(spine.prefix)}</span>` : ''}
               <span class="sp-kdc">${esc(spine.kdc)}</span>
               <span class="sp-aut">${esc(spine.authorCode)}</span>
               ${spine.yearVol ? `<span class="sp-yr">${esc(spine.yearVol)}</span>` : ''}
             </div>
-            <div class="book-actions" style="flex-direction:row;">
-              <button class="icon-btn" style="width:28px; height:28px; font-size:0.75rem;" onclick="openEditModal('${esc(b.isbn)}')">✏️</button>
-              ${allowDelete ? `<button class="icon-btn" style="width:28px; height:28px; font-size:0.75rem; color:#f87171;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
+          </div>
+          <div class="book-body">
+            <div>
+              <div class="book-title">${esc(b.title || 'Senza titolo')}${b.vol ? ' ' + esc(b.vol) : ''}</div>
+              <div class="book-author">${esc(b.author || 'Autore non registrato')} ${b.publisher ? '• ' + esc(b.publisher) : ''}</div>
+              <div class="book-meta">
+                ${prefixBadge}
+                ${kdcBadge}
+                <span class="badge" style="font-family:monospace;">ISBN ${esc(b.isbn)}</span>
+                ${yearBadge}
+                ${syncBadge}
+                ${statusBadge}
+              </div>
+              ${b.notes ? `<div style="font-size:0.75rem; color:#a5b4fc; margin-top:5px; background:rgba(99,102,241,0.08); padding:3px 8px; border-radius:6px; border-left:2px solid #6366f1;">📝 ${esc(b.notes)}</div>` : ''}
+            </div>
+            <div class="book-card-actions">
+              <button class="btn sm sec" onclick="openLabelModal('${esc(b.isbn)}')">🏷️ Dorso</button>
+              <button class="btn sm sec" onclick="openEditModal('${esc(b.isbn)}')">✏️ Modifica</button>
+              ${allowDelete ? `<button class="btn sm danger" style="padding:4px 8px; font-size:0.72rem;" onclick="deleteBook('${esc(b.isbn)}')">🗑️</button>` : ''}
             </div>
           </div>
         </div>
@@ -1580,23 +2083,53 @@
 
     function renderAll() {
       const all = Object.values(App.books).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const total = all.length;
 
-      // Recent Scans (primi 6)
-      const recent = all.slice(0, 6);
+      const countAllEl = document.getElementById('pillCountAll');
+      if (countAllEl) countAllEl.textContent = total;
+
+      // Recent Scans (primi 5)
+      const recent = all.slice(0, 5);
       document.getElementById('recentList').innerHTML = recent.length > 0
         ? recent.map(b => renderCard(b, false)).join('')
-        : `<p style="text-align:center; color:var(--mute); font-size:0.85rem; padding:24px 0;">Nessun libro scansionato. Tocca 'Avvia Camera'!</p>`;
+        : `<div style="text-align:center; color:var(--mute); font-size:0.85rem; padding:24px 0; background:var(--surface-card); border-radius:var(--radius-md); border:1px dashed var(--card-border);">Nessun libro scansionato in questa sessione.<br>Tocca <strong>"Avvia Camera"</strong> per iniziare!</div>`;
 
-      // Full Catalog
+      // Full Catalog with Active Filter & Search
       const q = (document.getElementById('libSearch')?.value || '').trim().toLowerCase();
-      const filtered = q
-        ? all.filter(b => [b.title, b.author, b.publisher, b.isbn, b.kdc, b.ddc, b.series, b.notes].join(' ').toLowerCase().includes(q))
-        : all;
+      const filter = App.activeFilter || 'all';
+
+      let filtered = all;
+
+      if (filter === 'kdc') {
+        filtered = filtered.filter(b => b.kdc && b.kdc.trim() !== '');
+      } else if (filter === 'kids') {
+        filtered = filtered.filter(b => {
+          const sp = KdcEngine.generateSpineLabel(b);
+          return sp.prefix === '아동' || sp.prefix === '유아';
+        });
+      } else if (filter === 'lang') {
+        filtered = filtered.filter(b => {
+          const sp = KdcEngine.generateSpineLabel(b);
+          return sp.prefix === '한국어학습';
+        });
+      } else if (filter === 'pending') {
+        filtered = filtered.filter(b => App.outbox.includes(b.isbn));
+      } else if (filter === 'notfound') {
+        filtered = filtered.filter(b => b.status !== 'ok');
+      }
+
+      if (q) {
+        filtered = filtered.filter(b => [b.title, b.author, b.publisher, b.isbn, b.kdc, b.ddc, b.series, b.notes].join(' ').toLowerCase().includes(q));
+      }
 
       document.getElementById('catalogList').innerHTML = filtered.length > 0
         ? filtered.map(b => renderCard(b, true)).join('')
-        : `<p style="text-align:center; color:var(--mute); font-size:0.85rem; padding:30px 0;">Nessun libro trovato.</p>`;
+        : `<div style="text-align:center; color:var(--mute); font-size:0.85rem; padding:36px 16px; background:var(--surface-card); border-radius:var(--radius-md); border:1px dashed var(--card-border);">
+            <div style="font-size:1.8rem; margin-bottom:8px;">🔍</div>
+            Nessun libro corrisponde ai filtri selezionati.
+          </div>`;
 
+      document.getElementById('catalogCount').textContent = `Risultati: ${filtered.length} di ${total}`;
       updateStats();
     }
 
@@ -1774,8 +2307,47 @@
         notFound.forEach(b => enrichBook(b.isbn));
       };
 
-      // Search & CSV & Pull
-      document.getElementById('libSearch').oninput = renderAll;
+      // Search & Clear & CSV & Pull
+      const searchInput = document.getElementById('libSearch');
+      const clearBtn = document.getElementById('btnSearchClear');
+      if (searchInput) {
+        searchInput.oninput = () => {
+          if (clearBtn) clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+          renderAll();
+        };
+      }
+      if (clearBtn) {
+        clearBtn.onclick = () => {
+          if (searchInput) searchInput.value = '';
+          clearBtn.style.display = 'none';
+          renderAll();
+          searchInput?.focus();
+        };
+      }
+
+      // Filter Pills
+      document.querySelectorAll('.filter-pill').forEach(pill => {
+        pill.onclick = () => {
+          document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          App.activeFilter = pill.dataset.filter;
+          renderAll();
+        };
+      });
+
+      // Modal Light Dismiss (chiusura toccando lo sfondo)
+      ['editModal', 'labelModal'].forEach(id => {
+        const wrap = document.getElementById(id);
+        if (wrap) {
+          wrap.onclick = (e) => {
+            if (e.target === wrap) {
+              if (id === 'editModal') closeModal();
+              else closeLabelModal();
+            }
+          };
+        }
+      });
+
       document.getElementById('btnExportCsv').onclick = exportCsv;
       document.getElementById('btnPullSheet').onclick = pullFromSheet;
 
