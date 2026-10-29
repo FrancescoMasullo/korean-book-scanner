@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b2433">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Catalogo libri coreani</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#1b2433;--mute:#667085;--line:#d9dee5;--acc:#0e6b73;--accfg:#fff;--ok:#1a7f4b;--warn:#b45309;--err:#b42318;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--card:#19212f;--ink:#e8ecf2;--mute:#97a1b2;--line:#2a3447;--acc:#4cc2cc;--accfg:#06262a;--ok:#4ade80;--warn:#fbbf24;--err:#f87171}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:4px 0 12px}
+section{display:none}section.on{display:block}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;padding:14px 4px;border:0;background:none;color:var(--mute);font:inherit;font-size:14px}
+nav button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 3px 0 var(--acc)}
+.btn{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:600;background:var(--acc);color:var(--accfg)}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:7px 10px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cam{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:4/3;margin-bottom:10px}
+.cam video{width:100%;height:100%;object-fit:cover}
+.cam .guide{position:absolute;left:10%;right:10%;top:38%;bottom:38%;border:2px solid rgba(255,255,255,.85);border-radius:8px;pointer-events:none}
+.cam .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;text-align:center;padding:20px}
+.cnt{margin:10px 0;color:var(--mute);font-size:14px}
+.book{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+.book img,.book .ph{width:48px;height:68px;object-fit:cover;border-radius:4px;background:var(--line);flex:none}
+.book .t{font-weight:700;word-break:keep-all}
+.book .m{color:var(--mute);font-size:13px}
+.tag{display:inline-block;font-size:12px;border-radius:99px;padding:1px 8px;border:1px solid currentColor;margin-top:4px}
+.tag.ok{color:var(--ok)}.tag.pending,.tag.notfound{color:var(--warn)}.tag.error{color:var(--err)}
+.book .x{margin-left:auto;background:none;border:0;color:var(--mute);font-size:20px;align-self:flex-start}
+input,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;margin:4px 0 12px}
+label{font-size:14px;font-weight:600}
+small{color:var(--mute);display:block;margin:-8px 0 12px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<main>
+<section id="s-scan" class="on">
+  <h1>Scansiona</h1>
+  <div class="cam"><video id="video" playsinline muted></video><div class="guide"></div><div class="msg" id="camMsg">La fotocamera è spenta</div></div>
+  <div class="row">
+    <button class="btn" id="camBtn">Avvia fotocamera</button>
+    <button class="btn sec" id="manBtn">Inserisci ISBN</button>
+  </div>
+  <p class="cnt" id="scanCnt"></p>
+  <div id="recent"></div>
+</section>
+
+<section id="s-lib">
+  <h1>Libreria</h1>
+  <input id="q" type="search" placeholder="Cerca per titolo, autore, ISBN…">
+  <div class="row" style="margin-bottom:10px">
+    <button class="btn sec sm" id="retryBtn">Ricontrolla incompleti</button>
+    <button class="btn sec sm" id="csvBtn">Esporta CSV</button>
+    <button class="btn sec sm" id="jsonBtn">Backup JSON</button>
+  </div>
+  <p class="cnt" id="libCnt"></p>
+  <div id="list"></div>
+</section>
+
+<section id="s-set">
+  <h1>Impostazioni</h1>
+  <p class="cnt">Restano salvate solo su questo dispositivo.</p>
+  <label for="f-who">Il tuo nome (operatore)</label><input id="f-who" autocomplete="off">
+  <label for="f-key">Chiave API NLK (cert_key)</label><input id="f-key" autocomplete="off" autocapitalize="off">
+  <small>Si richiede gratis su nl.go.kr, sezione ISBN/서지정보 Open API.</small>
+  <label for="f-proxy">Proxy CORS (facoltativo)</label><input id="f-proxy" placeholder="https://tuo-worker.workers.dev/?url=" autocapitalize="off">
+  <small>Serve solo se l’API non risponde dal browser.</small>
+  <label for="f-sheet">URL Google Apps Script (spazio condiviso)</label><input id="f-sheet" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off">
+  <label for="f-token">Token condiviso</label><input id="f-token" autocapitalize="off">
+  <div class="row">
+    <button class="btn" id="saveSet">Salva impostazioni</button>
+    <button class="btn sec" id="pullBtn">Scarica dal foglio condiviso</button>
+  </div>
+  <p class="cnt" id="outCnt"></p>
+  <div class="row"><button class="btn sec sm" id="impBtn">Importa backup JSON</button><input id="impFile" type="file" accept=".json" hidden></div>
+</section>
+</main>
+
+<nav>
+  <button data-t="scan" class="on">Scansiona</button>
+  <button data-t="lib">Libreria</button>
+  <button data-t="set">Impostazioni</button>
+</nav>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ toast("Attenzione: salvataggio locale non riuscito"); return false; } }
+};
+let books = LS.get("books", {});
+let outbox = LS.get("outbox", []);
+let cfg = Object.assign({ who:"", key:"", proxy:"", sheet:"", token:"" }, LS.get("cfg", {}));
+const save = () => LS.set("books", books);
+
+let tt;
+function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2200); }
+
+/* ---------- ISBN ---------- */
+function validIsbn(c){
+  if(!/^97[89]\d{10}$/.test(c)) return false;
+  let s = 0; for(let i = 0; i < 12; i++) s += +c[i] * (i % 2 ? 3 : 1);
+  return (10 - s % 10) % 10 === +c[12];
+}
+
+/* ---------- API NLK ---------- */
+async function lookup(isbn){
+  if(!cfg.key) throw new Error("Manca la chiave API");
+  let u = "https://www.nl.go.kr/seoji/SearchApi.do?cert_key=" + encodeURIComponent(cfg.key) +
+          "&result_style=json&page_no=1&page_size=1&isbn=" + isbn;
+  if(cfg.proxy) u = cfg.proxy + encodeURIComponent(u);
+  const r = await fetch(u);
+  if(!r.ok) throw new Error("Errore HTTP " + r.status);
+  const j = await r.json();
+  return (j.docs || [])[0] || null;
+}
+const mapDoc = d => ({
+  title:d.TITLE||"", vol:d.VOL||"", series:d.SERIES_TITLE||"", author:d.AUTHOR||"", publisher:d.PUBLISHER||"",
+  date:d.PUBLISH_PREDATE||"", price:d.PRE_PRICE||"", kdc:d.KDC||"", ddc:d.DDC||"", pages:d.PAGE||"",
+  size:d.BOOK_SIZE||"", subject:d.SUBJECT||"", addcode:d.EA_ADD_CODE||"", cover:d.TITLE_URL||""
+});
+
+async function enrich(isbn){
+  const b = books[isbn]; if(!b) return;
+  try{
+    const d = await lookup(isbn);
+    if(d){ Object.assign(b, mapDoc(d), { status:"ok", err:"" }); } else { b.status = "notfound"; b.err = ""; }
+  }catch(e){
+    b.status = "error";
+    b.err = /fetch/i.test(e.message) ? "Rete o CORS: controlla connessione/proxy" : e.message;
+  }
+  save(); render(); queue(isbn);
+}
+
+/* ---------- Aggiunta libri ---------- */
+let ac;
+function feedback(){
+  try{ navigator.vibrate && navigator.vibrate(60); }catch(e){}
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.frequency.value = 880; g.gain.value = .15; o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + .1);
+  }catch(e){}
+}
+function addIsbn(isbn){
+  if(books[isbn]){ toast("Già presente: " + (books[isbn].title || isbn)); return; }
+  books[isbn] = { isbn, status:"pending", ts:Date.now(), who:cfg.who };
+  save(); render(); feedback(); toast("Aggiunto " + isbn);
+  enrich(isbn);
+}
+
+/* ---------- Scanner ---------- */
+let reader = null, last = { c:"", t:0 };
+async function startScan(){
+  if(reader) return;
+  $("#camMsg").textContent = "Avvio fotocamera…";
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } = ZXing;
+    const hints = new Map();
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13]);
+    hints.set(DecodeHintType.TRY_HARDER, true);
+    reader = new BrowserMultiFormatReader(hints, 250);
+    await reader.decodeFromConstraints(
+      { video:{ facingMode:{ ideal:"environment" }, width:{ ideal:1280 }, height:{ ideal:720 } } },
+      "video",
+      res => { if(res) onCode(res.getText()); }
+    );
+    $("#camMsg").style.display = "none";
+    $("#camBtn").textContent = "Ferma fotocamera";
+  }catch(e){
+    reader = null;
+    $("#camMsg").style.display = "flex";
+    $("#camMsg").textContent = "Impossibile usare la fotocamera. Consenti l’accesso nelle impostazioni del browser.";
+    $("#camBtn").textContent = "Avvia fotocamera";
+  }
+}
+function stopScan(){
+  if(reader){ try{ reader.reset(); }catch(e){} reader = null; }
+  $("#camMsg").style.display = "flex"; $("#camMsg").textContent = "La fotocamera è spenta";
+  $("#camBtn").textContent = "Avvia fotocamera";
+}
+function onCode(c){
+  if(!validIsbn(c)) return;
+  const now = Date.now();
+  if(c === last.c && now - last.t < 3000) return;
+  last = { c, t:now };
+  addIsbn(c);
+}
+$("#camBtn").onclick = () => reader ? stopScan() : startScan();
+$("#manBtn").onclick = () => {
+  const v = (prompt("ISBN a 13 cifre") || "").replace(/\D/g, "");
+  if(!v) return;
+  validIsbn(v) ? addIsbn(v) : toast("ISBN non valido");
+};
+document.addEventListener("visibilitychange", () => { if(document.hidden) stopScan(); });
+
+/* ---------- Sincronizzazione Google Sheet ---------- */
+let flushing = false;
+function queue(isbn){
+  if(!cfg.sheet) return;
+  if(!outbox.includes(isbn)) outbox.push(isbn);
+  LS.set("outbox", outbox); flush();
+}
+async function flush(){
+  if(!cfg.sheet || flushing) return;
+  flushing = true;
+  for(const isbn of [...outbox]){
+    if(!books[isbn]){ outbox = outbox.filter(x => x !== isbn); continue; }
+    try{
+      await fetch(cfg.sheet, { method:"POST", mode:"no-cors", headers:{ "Content-Type":"text/plain" },
+        body: JSON.stringify({ token:cfg.token, book:books[isbn] }) });
+      outbox = outbox.filter(x => x !== isbn);
+    }catch(e){ break; }
+  }
+  LS.set("outbox", outbox); flushing = false; render();
+}
+async function pull(){
+  if(!cfg.sheet) return toast("Inserisci l’URL dello script");
+  try{
+    const r = await fetch(cfg.sheet + "?token=" + encodeURIComponent(cfg.token));
+    const j = await r.json();
+    if(j.error) throw new Error(j.error);
+    let n = 0;
+    (j.books || []).forEach(b => { b.isbn = String(b.isbn); if(b.isbn && !books[b.isbn]){ books[b.isbn] = b; n++; } });
+    save(); render(); toast(n + " libri nuovi dal foglio");
+  }catch(e){ toast("Download non riuscito: " + e.message); }
+}
+
+/* ---------- Render ---------- */
+const label = { ok:"Catalogato", pending:"In attesa", notfound:"Non trovato nella NLK", error:"Errore" };
+function card(b, del){
+  const meta = [b.author, b.publisher, b.date].filter(Boolean).map(esc).join(" · ");
+  const cls = [b.kdc && "KDC " + b.kdc, b.pages && b.pages + " p."].filter(Boolean).map(esc).join(" · ");
+  return `<div class="book">${b.cover ? `<img src="${esc(b.cover)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<div class="ph"></div>`}
+    <div><div class="t">${esc(b.title || "(titolo non disponibile)")}${b.vol ? " " + esc(b.vol) : ""}</div>
+    <div class="m">${meta}</div><div class="m">${esc(b.isbn)}${cls ? " · " + cls : ""}</div>
+    <span class="tag ${b.status}">${label[b.status] || b.status}</span>${b.err ? `<div class="m">${esc(b.err)}</div>` : ""}</div>
+    ${del ? `<button class="x" data-del="${esc(b.isbn)}" aria-label="Elimina">×</button>` : ""}</div>`;
+}
+function render(){
+  const all = Object.values(books).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  $("#scanCnt").textContent = all.length + " libri in archivio" + (outbox.length ? " · " + outbox.length + " da sincronizzare" : "");
+  $("#recent").innerHTML = all.slice(0, 5).map(b => card(b, false)).join("") || `<p class="cnt">Avvia la fotocamera e inquadra il codice a barre sul retro del libro.</p>`;
+  const q = $("#q").value.trim().toLowerCase();
+  const f = q ? all.filter(b => [b.title, b.author, b.publisher, b.isbn, b.series].join(" ").toLowerCase().includes(q)) : all;
+  $("#libCnt").textContent = f.length + (q ? " risultati" : " libri");
+  $("#list").innerHTML = f.map(b => card(b, true)).join("") || `<p class="cnt">Nessun libro ancora. Vai su Scansiona.</p>`;
+  $("#outCnt").textContent = outbox.length ? outbox.length + " libri in attesa di invio al foglio condiviso." : "";
+}
+$("#q").oninput = render;
+$("#list").onclick = e => {
+  const i = e.target.dataset.del;
+  if(i && confirm("Eliminare questo libro dall’archivio locale?")){ delete books[i]; save(); render(); }
+};
+
+/* ---------- Azioni libreria ---------- */
+$("#retryBtn").onclick = () => {
+  const todo = Object.values(books).filter(b => b.status !== "ok");
+  if(!todo.length) return toast("Nessun libro incompleto");
+  toast("Ricontrollo " + todo.length + " libri…"); todo.forEach(b => enrich(b.isbn));
+};
+function download(name, text, type){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+const COLS = ["isbn","title","vol","series","author","publisher","date","price","kdc","ddc","pages","size","subject","addcode","cover","status","ts","who"];
+$("#csvBtn").onclick = () => {
+  const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
+  const rows = [COLS.join(",")].concat(Object.values(books).map(b => COLS.map(c => q(b[c])).join(",")));
+  download("libri-coreani.csv", "\uFEFF" + rows.join("\n"), "text/csv;charset=utf-8");
+};
+$("#jsonBtn").onclick = () => download("libri-coreani-backup.json", JSON.stringify(books, null, 1), "application/json");
+$("#impBtn").onclick = () => $("#impFile").click();
+$("#impFile").onchange = async e => {
+  try{
+    const j = JSON.parse(await e.target.files[0].text()); let n = 0;
+    Object.values(j).forEach(b => { if(b && b.isbn && !books[b.isbn]){ books[b.isbn] = b; n++; } });
+    save(); render(); toast(n + " libri importati");
+  }catch(err){ toast("File non valido"); }
+  e.target.value = "";
+};
+
+/* ---------- Impostazioni e tab ---------- */
+const fields = { who:"#f-who", key:"#f-key", proxy:"#f-proxy", sheet:"#f-sheet", token:"#f-token" };
+Object.entries(fields).forEach(([k, s]) => $(s).value = cfg[k]);
+$("#saveSet").onclick = () => {
+  Object.entries(fields).forEach(([k, s]) => cfg[k] = $(s).value.trim());
+  LS.set("cfg", cfg); toast("Impostazioni salvate");
+  Object.keys(books).forEach(i => { if(!outbox.includes(i) && cfg.sheet) outbox.push(i); });
+  LS.set("outbox", outbox); flush();
+};
+$("#pullBtn").onclick = pull;
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button, section").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); $("#s-" + b.dataset.t).classList.add("on");
+  if(b.dataset.t !== "scan") stopScan();
+});
+
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+window.addEventListener("online", flush);
+render(); flush();
+</script>
+</body>
+</html>
